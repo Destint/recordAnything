@@ -1,0 +1,40 @@
+<view class="view-page-home">
+  <view class="view-top-box">
+    <block wx:if="{{noticeData}}">
+      <view class="view-notice-box">
+        <image class="img-notice" src="../../images/img_notice.png"></image>
+        <text class="text-notice">{{noticeData}}</text>
+      </view>
+    </block>
+    <view class="view-memorySum-box">
+      <text class="text-memorySum">全部回忆({{memorySum}})</text>
+      <image class="img-memorySort" src="../../images/img_sort.png" bindtap="onClickMemorySort"></image>
+    </view>
+  </view>
+  <block wx:if="{{memorySum}}">
+    <block wx:for-items="{{memoryList}}" wx:key="index">
+      <view class="view-memoryCell-box" bindtap="onClickMemory" data-data="{{item}}" data-index="{{index}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
+        <text class="text-memoryCell-title">{{item.title}}</text>
+        <text class="text-memoryCell-content">{{item.content}}</text>
+        <view class="view-memoryCell-picList">
+          <block wx:for-items="{{item.localPicPathList}}" wx:key="index">
+            <image class="img-memoryCell-picCell" src="{{item}}" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
+            </image>
+          </block>
+        </view>
+        <view class="view-memoryCell-info">
+          <text class="text-memoryCell-date">{{item.date}}</text>
+          <text class="text-memoryCell-address">{{item.simpleAddress}}</text>
+        </view>
+        <image class="img-memoryCell-editor" src="../../images/img_editor.png" catchtap="onClickEditorMemory" data-id="{{item.id}}"></image>
+      </view>
+    </block>
+  </block>
+  <block wx:else>
+    <image class="img-empty" src="../../images/img_empty.png"></image>
+    <text class="text-empty">暂无回忆</text>
+    <image class="img-guidance" src="../../images/img_guidance.png"></image>
+    <text class="text-addTip">点击这里开始记录回忆叭</text>
+  </block>
+  <image class="img-addMemory" src="../../images/img_add.png" bindtap="onClickAddMemory"></image>
+</view>

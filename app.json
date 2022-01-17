@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/memory/memory"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#467B73",
+    "navigationBarTitleText": "诸事录",
+    "navigationBarTextStyle": "white"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}
