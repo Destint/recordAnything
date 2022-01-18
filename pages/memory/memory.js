@@ -11,23 +11,17 @@ Page({
    */
   data: {
     noticeData: "公告内容", // 公告栏数据(最多40个汉字,尽量20个以内)
-    memorySum: 1, // 回忆总数
-    memoryList: [{
-      id: 10212, // 回忆唯一id
-      title: "回忆标题", // (15个汉字以内)
-      content: "回忆内容",
-      localPicPathList: ["../../images/img_add.png"],
-      cloudPicPathList: ["../../images/img_add.png"],
-      date: "2022-01-12 21:58:50",
-      address: "浙江省宁波市鄞州区渔源路666号 多云 1℃",
-      simpleAddress: "鄞州区 多云 1℃"
-    }], // 回忆列表
+    memorySum: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList').length : 0, // 回忆总数
+    memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [] // 回忆列表
   },
 
   /**
    * 页面创建时执行
    */
-  onLoad() {},
+  async onLoad() {
+    let that = this;
+    await that.getMemoryListFromCloud();
+  },
 
   /**
    * 页面出现在前台时执行
@@ -80,5 +74,49 @@ Page({
   onClickEditorMemory(e) {
     let memoryId = e.currentTarget.dataset.id; // 点击的回忆id
     console.log("点击编辑回忆:" + memoryId);
-  }
+  },
+
+  /**
+   * 从云端获取回忆列表
+   */
+  async getMemoryListFromCloud() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'getMemoryListByOpenId',
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            that.setData({
+              memoryList: res.result.memoryList,
+              memorySum: res.result.memoryList.length
+            })
+            wx.setStorageSync('memoryList', res.result.memoryList);
+            resolve(true);
+          } else {
+            that.setData({
+              memoryList: res.result.memoryList,
+              memorySum: 0
+            })
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    if (!result) that.showErrorTip();
+  },
+
+  /**
+   * 显示错误提示
+   */
+  showErrorTip() {
+    wx.showToast({
+      title: '网络异常请重启',
+      icon: 'error',
+      duration: 2000
+    })
+  },
 });

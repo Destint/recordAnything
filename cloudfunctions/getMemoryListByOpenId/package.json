@@ -1,0 +1,14 @@
+{
+  "name": "getMemoryListByOpenId",
+  "version": "1.0.0",
+  "description": "Gets a list of memories for the user",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.5.3"
+  }
+}
