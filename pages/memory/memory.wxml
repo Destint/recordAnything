@@ -16,12 +16,14 @@
       <view class="view-memoryCell-box" bindtap="onClickMemory" data-data="{{item}}" data-index="{{index}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
         <text class="text-memoryCell-title">{{item.title}}</text>
         <text class="text-memoryCell-content">{{item.content}}</text>
-        <view class="view-memoryCell-picList">
-          <block wx:for-items="{{item.localPicPathList}}" wx:key="index">
-            <image class="img-memoryCell-picCell" src="{{item}}" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
-            </image>
-          </block>
-        </view>
+        <block wx:if="{{item.localPicPathList.length}}">
+          <view class="view-memoryCell-picList">
+            <block wx:for-items="{{item.localPicPathList}}" wx:key="index">
+              <image class="img-memoryCell-picCell" src="{{item}}" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
+              </image>
+            </block>
+          </view>
+        </block>
         <view class="view-memoryCell-info">
           <text class="text-memoryCell-date">{{item.date}}</text>
           <text class="text-memoryCell-address">{{item.simpleAddress}}</text>

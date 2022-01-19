@@ -10,7 +10,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    noticeData: "公告内容", // 公告栏数据(最多40个汉字,尽量20个以内)
+    noticeData: wx.getStorageSync('noticeData') ? wx.getStorageSync('noticeData') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
     memorySum: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList').length : 0, // 回忆总数
     memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [] // 回忆列表
   },
@@ -21,6 +21,7 @@ Page({
   async onLoad() {
     let that = this;
     // await that.getMemoryListFromCloud();
+    // that.getNoticeDataFromCloud();
   },
 
   /**
@@ -159,15 +160,15 @@ Page({
     }
     await Promise.all(bigProArr).then(async (res) => {
       console.log("是否需要更新回忆:" + updateType);
-      if(updateType == true) await that.updateMemoryList(memoryList);
+      if (updateType == true) await that.updateMemoryListToCloud(memoryList);
     })
   },
 
   /**
-   * 更新回忆列表
+   * 向云端更新回忆列表
    * @param {Array} memoryList 回忆列表
    */
-  async updateMemoryList(memoryList) {
+  async updateMemoryListToCloud(memoryList) {
     let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
@@ -198,6 +199,29 @@ Page({
     });
     let result = await p;
     if (!result) that.showErrorTip();
+  },
+
+  /**
+   * 从云端获取公告数据
+   */
+  getNoticeDataFromCloud() {
+    let that = this;
+    const db = wx.cloud.database();
+    const notice = db.collection('notice');
+    notice.where({
+        _id: '8937eaa9613daffc0aa0e12b080c9859'
+      })
+      .get({
+        success(res) {
+          if (res.data[0] && res.data[0].noticeData && res.data[0].noticeData[0]) {
+            let noticeData = res.data[0].noticeData[0].notice;
+            that.setData({
+              noticeData: noticeData
+            })
+            wx.setStorageSync('noticeData', noticeData);
+          }
+        }
+      })
   },
 
   /**
