@@ -12,7 +12,9 @@ Page({
   data: {
     noticeData: wx.getStorageSync('noticeData') ? wx.getStorageSync('noticeData') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
     memorySum: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList').length : 0, // 回忆总数
-    memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [] // 回忆列表
+    memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [], // 回忆列表
+    showMemoryInfo: false, // 是否显示回忆信息
+    memoryInfo: {} // 详细的回忆信息
   },
 
   /**
@@ -60,9 +62,12 @@ Page({
    * @param {Object} e 点击事件的对象
    */
   onClickMemory(e) {
-    let memoryData = e.currentTarget.dataset.data; // 点击的回忆数据
-    let memoryIndex = e.currentTarget.dataset.index; // 点击的回忆索引
-    console.log("点击回忆" + memoryIndex);
+    let that = this;
+    let memoryInfo = e.currentTarget.dataset.data; // 点击的回忆数据
+    that.setData({
+      showMemoryInfo: true,
+      memoryInfo: memoryInfo
+    })
   },
 
   /**
@@ -226,6 +231,37 @@ Page({
           }
         }
       })
+  },
+
+  /**
+   * 触碰回忆详情页蒙版
+   * @param {Object} e 点击事件的对象
+   */
+  onTouchMemoryMask(e) {
+    let that = this;
+    that.setData({
+      showMemoryInfo: false,
+      memoryInfo: {}
+    })
+  },
+
+  /**
+   * 触碰回忆详情页信息
+   * @param {Object} e 点击事件的对象
+   */
+  onTouchMemoryInfo(e) {},
+
+  /**
+   * 预览回忆图片
+   * @param {Object} e 当前点击的对象
+   */
+  onPreviewPic(e) {
+    let that = this;
+    let index = e.currentTarget.dataset.index;
+    wx.previewImage({
+      current: that.data.memoryInfo.localPicPathList[index],
+      urls: that.data.memoryInfo.localPicPathList
+    })
   },
 
   /**

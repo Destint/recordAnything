@@ -1,4 +1,4 @@
-<view class="view-page-home">
+<view class="view-page-memory">
   <view class="view-top-box">
     <block wx:if="{{noticeData}}">
       <view class="view-notice-box">
@@ -13,7 +13,7 @@
   </view>
   <block wx:if="{{memorySum}}">
     <block wx:for-items="{{memoryList}}" wx:key="index">
-      <view class="view-memoryCell-box" bindtap="onClickMemory" data-data="{{item}}" data-index="{{index}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
+      <view class="view-memoryCell-box" bindtap="onClickMemory" data-data="{{item}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
         <text class="text-memoryCell-title">{{item.title}}</text>
         <text class="text-memoryCell-content">{{item.content}}</text>
         <block wx:if="{{item.localPicPathList.length}}">
@@ -39,4 +39,40 @@
     <text class="text-addTip">点击这里开始记录回忆叭</text>
   </block>
   <image class="img-addMemory" src="../../images/img_add.png" bindtap="onClickAddMemory"></image>
+  <block wx:if="{{showMemoryInfo}}">
+    <view class="view-memoryMask-box" catchtouchstart="onTouchMemoryMask"></view>
+    <view class="view-memoryInfo-box" catchtouchmove="onTouchMemoryInfo">
+      <view class="view-memoryInfo-layout" style="margin-top: 35rpx;">
+        <image class="img-memoryInfo-Icon" src="../../images/img_title.png"></image>
+        <text class="text-memoryInfo-content" style="font-weight: bold;">{{memoryInfo.title}}</text>
+      </view>
+      <block wx:if="{{memoryInfo.localPicPathList.length}}">
+        <view class="view-memoryPic-list">
+          <block wx:for-items="{{memoryInfo.localPicPathList}}" wx:key="index">
+            <image class="img-memoryPic" style="margin-left:{{index == 0 ? '0' : '10rpx'}}" src="{{item}}" data-index="{{index}}" catchtouchend="onPreviewPic"></image>
+          </block>
+        </view>
+      </block>
+      <block wx:if="{{memoryInfo.content}}">
+        <view class="view-memoryInfo-layout" style="padding-bottom: 10rpx;border-bottom: 1rpx solid #467B73;">
+          <image class="img-memoryInfo-Icon" src="../../images/img_content.png"></image>
+          <scroll-view scroll-y="true" class="scrollView-memoryContent">
+            <text>{{memoryInfo.content}}</text>
+          </scroll-view>
+        </view>
+      </block>
+      <block wx:if="{{memoryInfo.date}}">
+        <view class="view-memoryInfo-layout">
+          <image class="img-memoryInfo-Icon" src="../../images/img_date.png"></image>
+          <text class="text-memoryInfo-content">{{memoryInfo.date}}</text>
+        </view>
+      </block>
+      <block wx:if="{{memoryInfo.address}}">
+        <view class="view-memoryInfo-layout">
+          <image class="img-memoryInfo-Icon" src="../../images/img_address.png"></image>
+          <text class="text-memoryInfo-content">{{memoryInfo.address}}</text>
+        </view>
+      </block>
+    </view>
+  </block>
 </view>
