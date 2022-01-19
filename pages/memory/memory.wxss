@@ -94,7 +94,7 @@ page {
 
 .view-memoryCell-picList {
   position: relative;
-  margin: 10rpx 130rpx 0 30rpx;
+  margin: 5rpx 130rpx 0 30rpx;
 }
 
 .img-memoryCell-picCell {
@@ -105,7 +105,7 @@ page {
 
 .view-memoryCell-info {
   position: relative;
-  margin: 10rpx 130rpx 20rpx 30rpx;
+  margin: 5rpx 130rpx 20rpx 30rpx;
   color: #CACED1;
   font-size: 24rpx;
 }

@@ -48,7 +48,11 @@ Page({
    * 点击回忆排序
    */
   onClickMemorySort() {
-    console.log("点击回忆排序");
+    let that = this;
+    let memoryList = that.data.memoryList;
+    that.setData({
+      memoryList: memoryList.reverse()
+    })
   },
 
   /**
