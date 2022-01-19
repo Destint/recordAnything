@@ -20,7 +20,7 @@ Page({
    */
   async onLoad() {
     let that = this;
-    await that.getMemoryListFromCloud();
+    // await that.getMemoryListFromCloud();
   },
 
   /**
@@ -52,7 +52,7 @@ Page({
 
   /**
    * 点击回忆
-   * @param {object} e 点击事件的对象
+   * @param {Object} e 点击事件的对象
    */
   onClickMemory(e) {
     let memoryData = e.currentTarget.dataset.data; // 点击的回忆数据
@@ -69,7 +69,7 @@ Page({
 
   /**
    * 点击编辑回忆
-   * @param {object} e 点击事件的对象
+   * @param {Object} e 点击事件的对象
    */
   onClickEditorMemory(e) {
     let memoryId = e.currentTarget.dataset.id; // 点击的回忆id
@@ -85,17 +85,108 @@ Page({
       wx.cloud.callFunction({
           name: 'getMemoryListByOpenId',
         })
-        .then(res => {
+        .then(async (res) => {
           if (res.result && res.result.result) {
-            that.setData({
-              memoryList: res.result.memoryList,
-              memorySum: res.result.memoryList.length
-            })
-            wx.setStorageSync('memoryList', res.result.memoryList);
+            await that.checkLocalPicPath(res.result.memoryList);
             resolve(true);
           } else {
             that.setData({
               memoryList: res.result.memoryList,
+              memorySum: 0
+            })
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    if (!result) that.showErrorTip();
+  },
+
+  /**
+   * 检测本地图片路径是否存在
+   * @param {Array} memoryList 回忆列表
+   */
+  async checkLocalPicPath(memoryList) {
+    let that = this;
+    let bigProArr = []; // 大循环promise
+    let smallProArr = []; // 小循环promise
+    let updateType = false; // 是否向云端更新回忆
+    for (let i = 0; i < memoryList.length; i++) {
+      bigProArr[i] = new Promise(async function (resolve, reject) {
+        for (let j = 0; j < memoryList[i].cloudPicPathList.length; j++) {
+          smallProArr[j] = new Promise(async function (resolve, reject) {
+            if (memoryList[i].localPicPathList[j] == undefined) {
+              await wx.cloud.downloadFile({
+                  fileID: memoryList[i].cloudPicPathList[j]
+                })
+                .then(res => {
+                  memoryList[i].localPicPathList[j] = res.tempFilePath;
+                  updateType = true;
+                  resolve(true);
+                })
+                .catch(res => {
+                  resolve(true);
+                })
+            } else {
+              await wx.getImageInfo({
+                  src: memoryList[i].localPicPathList[j]
+                })
+                .then(res => {
+                  resolve(true);
+                })
+                .catch(async (res) => {
+                  await wx.cloud.downloadFile({
+                      fileID: memoryList[i].cloudPicPathList[j]
+                    })
+                    .then(res => {
+                      memoryList[i].localPicPathList[j] = res.tempFilePath;
+                      updateType = true;
+                      resolve(true);
+                    })
+                    .catch(res => {
+                      resolve(true);
+                    })
+                })
+            }
+          })
+        }
+        await Promise.all(smallProArr);
+        resolve(true)
+      })
+    }
+    await Promise.all(bigProArr).then(async (res) => {
+      console.log("是否需要更新回忆:" + updateType);
+      if(updateType == true) await that.updateMemoryList(memoryList);
+    })
+  },
+
+  /**
+   * 更新回忆列表
+   * @param {Array} memoryList 回忆列表
+   */
+  async updateMemoryList(memoryList) {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'updateMemoryListByOpenId',
+          data: {
+            memoryList: memoryList
+          }
+        })
+        .then(async (res) => {
+          if (res.result && res.result.result) {
+            that.setData({
+              memoryList: memoryList,
+              memorySum: memoryList.length
+            })
+            wx.setStorageSync('memoryList', memoryList);
+            resolve(true);
+          } else {
+            that.setData({
+              memoryList: [],
               memorySum: 0
             })
             resolve(false);
