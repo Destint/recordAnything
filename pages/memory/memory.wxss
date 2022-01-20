@@ -184,8 +184,9 @@ page {
   position: fixed;
   left: 45rpx;
   right: 45rpx;
-  top: 200rpx;
-  bottom: 200rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-bottom: 35rpx;
   background-color: #FBF2E3;
   border-radius: 30rpx;
 }

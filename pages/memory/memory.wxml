@@ -67,7 +67,7 @@
           <text class="text-memoryInfo-content">{{memoryInfo.date}}</text>
         </view>
       </block>
-      <block wx:if="{{memoryInfo.address}}">
+      <block wx:if="{{memoryInfo.address != ' '}}">
         <view class="view-memoryInfo-layout">
           <image class="img-memoryInfo-Icon" src="../../images/img_address.png"></image>
           <text class="text-memoryInfo-content">{{memoryInfo.address}}</text>
