@@ -10,11 +10,18 @@ Page({
    * 页面的初始数据
    */
   data: {
+    showPopup: false, // 是否显示弹出窗口(true可以防止弹窗穿透)
     noticeData: wx.getStorageSync('noticeData') ? wx.getStorageSync('noticeData') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
     memorySum: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList').length : 0, // 回忆总数
     memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [], // 回忆列表
     showMemoryInfo: false, // 是否显示回忆信息
-    memoryInfo: {} // 详细的回忆信息
+    memoryInfo: {}, // 详细的回忆信息
+    showAddMemory: false, // 是否显示添加回忆
+    addmemory: {
+      title: '',
+      picList: [],
+      content: ''
+    }, // 添加的回忆内容
   },
 
   /**
@@ -66,6 +73,7 @@ Page({
     let memoryInfo = e.currentTarget.dataset.data; // 点击的回忆数据
     that.setData({
       showMemoryInfo: true,
+      showPopup: true,
       memoryInfo: memoryInfo
     })
   },
@@ -74,7 +82,11 @@ Page({
    * 点击添加回忆
    */
   onClickAddMemory() {
-    console.log("点击添加回忆");
+    let that = this;
+    that.setData({
+      showPopup: true,
+      showAddMemory: true
+    })
   },
 
   /**
@@ -82,6 +94,7 @@ Page({
    * @param {Object} e 点击事件的对象
    */
   onClickEditorMemory(e) {
+    let that = this;
     let memoryId = e.currentTarget.dataset.id; // 点击的回忆id
     console.log("点击编辑回忆:" + memoryId);
   },
@@ -237,19 +250,14 @@ Page({
    * 触碰回忆详情页蒙版
    * @param {Object} e 点击事件的对象
    */
-  onTouchMemoryMask(e) {
+  onClickMemoryMask(e) {
     let that = this;
     that.setData({
       showMemoryInfo: false,
+      showPopup: false,
       memoryInfo: {}
     })
   },
-
-  /**
-   * 触碰回忆详情页信息
-   * @param {Object} e 点击事件的对象
-   */
-  onTouchMemoryInfo(e) {},
 
   /**
    * 预览回忆图片
@@ -262,6 +270,118 @@ Page({
       current: that.data.memoryInfo.localPicPathList[index],
       urls: that.data.memoryInfo.localPicPathList
     })
+  },
+
+  /**
+   * 添加回忆的标题
+   * @param {Object} e 当前点击的对象
+   */
+  addMemoryTitle(e) {
+    let that = this;
+    that.setData({
+      [`${`addmemory.${'title'}`}`]: e.detail.value
+    })
+  },
+
+  /**
+   * 点击添加图片
+   */
+  onClickAddPic() {
+    let that = this;
+    let picList = that.data.addmemory.picList;
+    if (picList.length >= 5) {
+      wx.showToast({
+        title: '图片最多记录5张',
+        icon: 'none',
+        duration: 1500
+      });
+    } else {
+      let imgCount = 5 - picList.length;
+      wx.chooseMedia({
+        count: imgCount,
+        mediaType: ['image'],
+        sourceType: ['album'],
+        sizeType: ['compressed'],
+        success(res) {
+          let tempFiles = res.tempFiles;
+          for (let i = 0; i < tempFiles.length; i++) {
+            picList.push(tempFiles[i].tempFilePath);
+          }
+          that.setData({
+            [`${`addmemory.${'picList'}`}`]: picList
+          })
+        }
+      })
+    }
+  },
+
+  /**
+   * 预览添加的回忆图片
+   * @param {Object} e 当前点击的对象
+   */
+  onPreviewAddPic(e) {
+    let that = this;
+    let index = e.currentTarget.dataset.index;
+    wx.previewImage({
+      current: that.data.addmemory.picList[index],
+      urls: that.data.addmemory.picList
+    })
+  },
+
+  /**
+   * 删除已添加的回忆图片
+   * @param {object} e 当前点击的对象
+   */
+  onClickDeletePic(e) {
+    let that = this;
+    let index = e.currentTarget.dataset.index;
+    let picList = that.data.addmemory.picList;
+    picList.splice(index, 1);
+    that.setData({
+      [`${`addmemory.${'picList'}`}`]: picList
+    })
+  },
+
+  /**
+   * 添加回忆的内容
+   * @param {Object} e 当前点击的对象
+   */
+  addMemoryContent(e) {
+    let that = this;
+    that.setData({
+      [`${`addmemory.${'content'}`}`]: e.detail.value
+    })
+  },
+
+  /**
+   * 点击记录回忆
+   */
+  onClickRecordMemory() {
+    console.log("记录回忆")
+  },
+
+  /**
+   * 点击返回回忆页
+   */
+  onClickBackMemory() {
+    let that = this;
+    wx.showModal({
+        title: '温馨提示',
+        content: '返回会清空当前所记回忆',
+        cancelText: '取消',
+        confirmText: '确定'
+      })
+      .then(res => {
+        if (res.confirm) {
+          that.setData({
+            showPopup: false,
+            showAddMemory: false,
+            [`${`addmemory.${'title'}`}`]: '',
+            [`${`addmemory.${'picList'}`}`]: [],
+            [`${`addmemory.${'content'}`}`]: ''
+          })
+        }
+      })
   },
 
   /**

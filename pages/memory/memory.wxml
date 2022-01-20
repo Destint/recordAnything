@@ -1,11 +1,17 @@
+<!-- 防止弹窗穿透 -->
+<page-meta page-style="overflow: {{showPopup ? 'hidden' : 'visible'}}" />
+<!-- 回忆页面 -->
 <view class="view-page-memory">
+  <!-- 顶部信息栏 -->
   <view class="view-top-box">
     <block wx:if="{{noticeData}}">
+      <!-- 公告栏 -->
       <view class="view-notice-box">
         <image class="img-notice" src="../../images/img_notice.png"></image>
         <text class="text-notice">{{noticeData}}</text>
       </view>
     </block>
+    <!-- 全部回忆栏 -->
     <view class="view-memorySum-box">
       <text class="text-memorySum">全部回忆({{memorySum}})</text>
       <image class="img-memorySort" src="../../images/img_sort.png" bindtap="onClickMemorySort"></image>
@@ -13,10 +19,12 @@
   </view>
   <block wx:if="{{memorySum}}">
     <block wx:for-items="{{memoryList}}" wx:key="index">
+      <!-- 单个回忆栏 -->
       <view class="view-memoryCell-box" bindtap="onClickMemory" data-data="{{item}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
         <text class="text-memoryCell-title">{{item.title}}</text>
         <text class="text-memoryCell-content">{{item.content}}</text>
         <block wx:if="{{item.localPicPathList.length}}">
+          <!-- 回忆图片列表 -->
           <view class="view-memoryCell-picList">
             <block wx:for-items="{{item.localPicPathList}}" wx:key="index">
               <image class="img-memoryCell-picCell" src="{{item}}" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
@@ -24,6 +32,7 @@
             </block>
           </view>
         </block>
+        <!-- 回忆的信息 -->
         <view class="view-memoryCell-info">
           <text class="text-memoryCell-date">{{item.date}}</text>
           <text class="text-memoryCell-address">{{item.simpleAddress}}</text>
@@ -40,13 +49,17 @@
   </block>
   <image class="img-addMemory" src="../../images/img_add.png" bindtap="onClickAddMemory"></image>
   <block wx:if="{{showMemoryInfo}}">
-    <view class="view-memoryMask-box" catchtouchstart="onTouchMemoryMask"></view>
-    <view class="view-memoryInfo-box" catchtouchmove="onTouchMemoryInfo">
+    <!-- 详细的回忆信息蒙版 -->
+    <view class="view-memoryMask-box" bindtap="onClickMemoryMask"></view>
+    <!-- 详细的回忆信息栏 -->
+    <view class="view-memoryInfo-box">
+      <!-- 回忆的标题栏 -->
       <view class="view-memoryInfo-layout" style="margin-top: 35rpx;">
         <image class="img-memoryInfo-Icon" src="../../images/img_title.png"></image>
         <text class="text-memoryInfo-content" style="font-weight: bold;">{{memoryInfo.title}}</text>
       </view>
       <block wx:if="{{memoryInfo.localPicPathList.length}}">
+        <!-- 回忆的图片栏 -->
         <view class="view-memoryPic-list">
           <block wx:for-items="{{memoryInfo.localPicPathList}}" wx:key="index">
             <image class="img-memoryPic" style="margin-left:{{index == 0 ? '0' : '10rpx'}}" src="{{item}}" data-index="{{index}}" catchtouchend="onPreviewPic"></image>
@@ -54,6 +67,7 @@
         </view>
       </block>
       <block wx:if="{{memoryInfo.content}}">
+        <!-- 回忆的内容栏 -->
         <view class="view-memoryInfo-layout" style="padding-bottom: 10rpx;border-bottom: 1rpx solid #467B73;">
           <image class="img-memoryInfo-Icon" src="../../images/img_content.png"></image>
           <scroll-view scroll-y="true" class="scrollView-memoryContent">
@@ -62,17 +76,56 @@
         </view>
       </block>
       <block wx:if="{{memoryInfo.date}}">
+        <!-- 回忆的日期栏 -->
         <view class="view-memoryInfo-layout">
           <image class="img-memoryInfo-Icon" src="../../images/img_date.png"></image>
           <text class="text-memoryInfo-content">{{memoryInfo.date}}</text>
         </view>
       </block>
       <block wx:if="{{memoryInfo.address != ' '}}">
+        <!-- 回忆的地址栏 -->
         <view class="view-memoryInfo-layout">
           <image class="img-memoryInfo-Icon" src="../../images/img_address.png"></image>
           <text class="text-memoryInfo-content">{{memoryInfo.address}}</text>
         </view>
       </block>
+    </view>
+  </block>
+  <block wx:if="{{showAddMemory}}">
+    <!-- 添加回忆页的蒙版 -->
+    <view class="view-memoryMask-box"></view>
+    <!-- 添加回忆页 -->
+    <view class="view-addMemory-box">
+      <text class="text-addMemory">记录回忆</text>
+      <!-- 添加的回忆标题栏 -->
+      <view class="view-addMemory-title">
+        <input class="input-addMemory-title" maxlength="15" placeholder="回忆的标题..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="addMemoryTitle" value="{{addmemory.title}}" />
+      </view>
+      <!-- 添加的回忆图片栏 -->
+      <view class="view-addMemory-picList">
+        <block wx:if="{{addmemory.picList.length}}">
+          <block wx:for-items="{{addmemory.picList}}" wx:key="index">
+            <view class="view-addMemory-picCell" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
+              <image class="img-addMemory-picCell" src="{{item}}" bindtap="onPreviewAddPic" data-index="{{index}}"></image>
+              <image class="img-addMemory-deletePicCell" src="../../images/img_delete.png" bindtap="onClickDeletePic" data-index="{{index}}"></image>
+            </view>
+          </block>
+        </block>
+        <block wx:if="{{addmemory.picList.length < 5}}">
+          <!-- 添加图片按钮 -->
+          <view class="view-addMemory-addPic" style="margin-left:{{addmemory.picList.length == 0 ? '0' : '10rpx'}}" bindtap="onClickAddPic">
+            <image class="img-addMemory-dottedBox" src="../../images/img_dotted_box.png"></image>
+            <image class="img-addMemory-picIcon" src="../../images/img_add_picture.png"></image>
+            <text>添加图片</text>
+          </view>
+        </block>
+      </view>
+      <!-- 添加的回忆内容栏 -->
+      <view class="view-addMemory-content">
+        <textarea class="textarea-addMemory-content" maxlength="-1" placeholder="回忆的内容..." bindinput="addMemoryContent" placeholder-style="color: rgba(70,123,115,0.5);" disable-default-padding='true' value="{{addmemory.content}}" cursor-spacing="30"></textarea>
+      </view>
+      <image class="img-addMemory-record" src="../../images/img_record.png" bindtap="onClickRecordMemory"></image>
+      <image class="img-addMemory-back" src="../../images/img_back.png" bindtap="onClickBackMemory"></image>
     </view>
   </block>
 </view>
