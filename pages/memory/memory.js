@@ -508,7 +508,7 @@ Page({
     for (var i = 0; i < localPicPathList.length; i++) {
       proArr[i] = new Promise(function (resolve, reject) {
         wx.getFileSystemManager().readFile({
-          filePath: localPicPathList[0],
+          filePath: localPicPathList[i],
           encoding: 'base64',
           success: res => {
             wx.cloud.callFunction({
