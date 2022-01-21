@@ -25,7 +25,7 @@
         <text class="text-memoryCell-content">{{item.content}}</text>
         <block wx:if="{{item.localPicPathList.length}}">
           <!-- 回忆图片列表 -->
-          <view class="view-memoryCell-picList">
+          <view class="view-memoryCell-localPicPathList">
             <block wx:for-items="{{item.localPicPathList}}" wx:key="index">
               <image class="img-memoryCell-picCell" src="{{item}}" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
               </image>
@@ -99,21 +99,21 @@
       <text class="text-addMemory">记录回忆</text>
       <!-- 添加的回忆标题栏 -->
       <view class="view-addMemory-title">
-        <input class="input-addMemory-title" maxlength="15" placeholder="回忆的标题..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="addMemoryTitle" value="{{addmemory.title}}" />
+        <input class="input-addMemory-title" maxlength="15" placeholder="回忆的标题..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="addMemoryTitle" />
       </view>
       <!-- 添加的回忆图片栏 -->
-      <view class="view-addMemory-picList">
-        <block wx:if="{{addmemory.picList.length}}">
-          <block wx:for-items="{{addmemory.picList}}" wx:key="index">
+      <view class="view-addMemory-localPicPathList">
+        <block wx:if="{{addMemory.localPicPathList.length}}">
+          <block wx:for-items="{{addMemory.localPicPathList}}" wx:key="index">
             <view class="view-addMemory-picCell" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
               <image class="img-addMemory-picCell" src="{{item}}" bindtap="onPreviewAddPic" data-index="{{index}}"></image>
               <image class="img-addMemory-deletePicCell" src="../../images/img_delete.png" bindtap="onClickDeletePic" data-index="{{index}}"></image>
             </view>
           </block>
         </block>
-        <block wx:if="{{addmemory.picList.length < 5}}">
+        <block wx:if="{{addMemory.localPicPathList.length < 5}}">
           <!-- 添加图片按钮 -->
-          <view class="view-addMemory-addPic" style="margin-left:{{addmemory.picList.length == 0 ? '0' : '10rpx'}}" bindtap="onClickAddPic">
+          <view class="view-addMemory-addPic" style="margin-left:{{addMemory.localPicPathList.length == 0 ? '0' : '10rpx'}}" bindtap="onClickAddPic">
             <image class="img-addMemory-dottedBox" src="../../images/img_dotted_box.png"></image>
             <image class="img-addMemory-picIcon" src="../../images/img_add_picture.png"></image>
             <text>添加图片</text>
@@ -122,7 +122,7 @@
       </view>
       <!-- 添加的回忆内容栏 -->
       <view class="view-addMemory-content">
-        <textarea class="textarea-addMemory-content" maxlength="-1" placeholder="回忆的内容..." bindinput="addMemoryContent" placeholder-style="color: rgba(70,123,115,0.5);" disable-default-padding='true' value="{{addmemory.content}}" cursor-spacing="30"></textarea>
+        <textarea class="textarea-addMemory-content" maxlength="-1" placeholder="回忆的内容..." bindinput="addMemoryContent" placeholder-style="color: rgba(70,123,115,0.5);" disable-default-padding='true' cursor-spacing="30"></textarea>
       </view>
       <image class="img-addMemory-record" src="../../images/img_record.png" bindtap="onClickRecordMemory"></image>
       <image class="img-addMemory-back" src="../../images/img_back.png" bindtap="onClickBackMemory"></image>

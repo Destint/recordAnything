@@ -1,0 +1,15 @@
+{
+  "name": "uploadLocalPicList",
+  "version": "1.0.0",
+  "description": "Upload a list of local images",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trick",
+  "date": "2022-01-21 10:27:00",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.5.3"
+  }
+}

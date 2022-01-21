@@ -8,6 +8,11 @@
     "navigationBarTitleText": "诸事录",
     "navigationBarTextStyle": "white"
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "小程序将获取您当前的位置信息仅用于记录您的回忆"
+    }
+  },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"

@@ -4,6 +4,8 @@
  * Date: 2022-01-17
  */
 const app = getApp();
+const QQMapWX = require('../../utils/qqmap-wx-jssdk.js'); // 获取当前位置
+var qqmapsdk;
 
 Page({
   /**
@@ -17,20 +19,35 @@ Page({
     showMemoryInfo: false, // 是否显示回忆信息
     memoryInfo: {}, // 详细的回忆信息
     showAddMemory: false, // 是否显示添加回忆
-    addmemory: {
+    addMemory: {
       title: '',
-      picList: [],
-      content: ''
+      localPicPathList: [],
+      content: '',
+      cloudPicPathList: [],
+      id: 0,
+      date: '',
+      address: '',
+      simpleAddress: ''
     }, // 添加的回忆内容
   },
+
+  recordMemoryType: false, // 记录回忆状态(防止两次点击记录回忆)
 
   /**
    * 页面创建时执行
    */
   async onLoad() {
     let that = this;
-    // await that.getMemoryListFromCloud();
-    // that.getNoticeDataFromCloud();
+    qqmapsdk = new QQMapWX({
+      key: '3XKBZ-WP4CG-KQVQM-IJ2WK-7QAE7-2ZFKZ' // 腾讯位置服务密钥
+    })
+    wx.showLoading({
+      title: '载入回忆中',
+      mask: true
+    })
+    await that.getMemoryListFromCloud();
+    that.getNoticeDataFromCloud();
+    wx.hideLoading();
   },
 
   /**
@@ -279,7 +296,7 @@ Page({
   addMemoryTitle(e) {
     let that = this;
     that.setData({
-      [`${`addmemory.${'title'}`}`]: e.detail.value
+      [`${`addMemory.${'title'}`}`]: e.detail.value
     })
   },
 
@@ -288,15 +305,15 @@ Page({
    */
   onClickAddPic() {
     let that = this;
-    let picList = that.data.addmemory.picList;
-    if (picList.length >= 5) {
+    let localPicPathList = that.data.addMemory.localPicPathList;
+    if (localPicPathList.length >= 5) {
       wx.showToast({
         title: '图片最多记录5张',
         icon: 'none',
         duration: 1500
       });
     } else {
-      let imgCount = 5 - picList.length;
+      let imgCount = 5 - localPicPathList.length;
       wx.chooseMedia({
         count: imgCount,
         mediaType: ['image'],
@@ -305,10 +322,10 @@ Page({
         success(res) {
           let tempFiles = res.tempFiles;
           for (let i = 0; i < tempFiles.length; i++) {
-            picList.push(tempFiles[i].tempFilePath);
+            localPicPathList.push(tempFiles[i].tempFilePath);
           }
           that.setData({
-            [`${`addmemory.${'picList'}`}`]: picList
+            [`${`addMemory.${'localPicPathList'}`}`]: localPicPathList
           })
         }
       })
@@ -323,8 +340,8 @@ Page({
     let that = this;
     let index = e.currentTarget.dataset.index;
     wx.previewImage({
-      current: that.data.addmemory.picList[index],
-      urls: that.data.addmemory.picList
+      current: that.data.addMemory.localPicPathList[index],
+      urls: that.data.addMemory.localPicPathList
     })
   },
 
@@ -335,10 +352,10 @@ Page({
   onClickDeletePic(e) {
     let that = this;
     let index = e.currentTarget.dataset.index;
-    let picList = that.data.addmemory.picList;
-    picList.splice(index, 1);
+    let localPicPathList = that.data.addMemory.localPicPathList;
+    localPicPathList.splice(index, 1);
     that.setData({
-      [`${`addmemory.${'picList'}`}`]: picList
+      [`${`addMemory.${'localPicPathList'}`}`]: localPicPathList
     })
   },
 
@@ -349,15 +366,94 @@ Page({
   addMemoryContent(e) {
     let that = this;
     that.setData({
-      [`${`addmemory.${'content'}`}`]: e.detail.value
+      [`${`addMemory.${'content'}`}`]: e.detail.value
     })
   },
 
   /**
    * 点击记录回忆
    */
-  onClickRecordMemory() {
-    console.log("记录回忆")
+  async onClickRecordMemory() {
+    let that = this;
+    let memoryTitle = that.data.addMemory.title;
+    let memoryContent = that.data.addMemory.content;
+
+    if (memoryTitle == '') {
+      wx.showToast({
+        title: '回忆标题不能为空',
+        icon: 'none',
+        duration: 1500
+      })
+      return;
+    }
+    if (that.recordMemoryType == true) return;
+    that.recordMemoryType = true;
+    if (!await that.checkMsgSecFromCloud(memoryTitle)) {
+      wx.showModal({
+        showCancel: false,
+        title: '温馨提示',
+        content: '回忆标题存在违规信息',
+        confirmText: '确定'
+      })
+      that.recordMemoryType = false;
+      return;
+    }
+    if (memoryContent && !await that.checkMsgSecFromCloud(memoryContent)) {
+      wx.showModal({
+        showCancel: false,
+        title: '温馨提示',
+        content: '回忆内容存在违规信息',
+        confirmText: '确定'
+      })
+      that.recordMemoryType = false;
+      return;
+    }
+    wx.showModal({
+        title: '温馨提示',
+        content: '确定记录这篇回忆了吗',
+        cancelText: '取消',
+        confirmText: '确定'
+      })
+      .then(res => {
+        if (res.confirm) {
+          wx.showLoading({
+            title: '记录中...',
+            mask: true
+          })
+          that.recordMemoryType = false;
+          that.startAddMemory();
+        } else {
+          that.recordMemoryType = false;
+        }
+      })
+  },
+
+  /**
+   * 从云端检测内容是否合规
+   * @param {String} context 检测的内容
+   */
+  async checkMsgSecFromCloud(context) {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'checkMsgSec',
+          data: {
+            content: context
+          },
+        })
+        .then(res => {
+          if (res.result && res.result.result && res.result.data && res.result.data.errCode == 0) {
+            if (res.result.data.result && res.result.data.result.suggest == 'pass') resolve(true);
+            else resolve(false);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    return await p;
   },
 
   /**
@@ -376,12 +472,218 @@ Page({
           that.setData({
             showPopup: false,
             showAddMemory: false,
-            [`${`addmemory.${'title'}`}`]: '',
-            [`${`addmemory.${'picList'}`}`]: [],
-            [`${`addmemory.${'content'}`}`]: ''
+            [`${`addMemory.${'title'}`}`]: '',
+            [`${`addMemory.${'localPicPathList'}`}`]: [],
+            [`${`addMemory.${'content'}`}`]: ''
           })
         }
       })
+  },
+
+  /**
+   * 开始添加回忆
+   */
+  async startAddMemory() {
+    let that = this;
+    let localPicPathList = that.data.addMemory.localPicPathList;
+    if (localPicPathList[0] != undefined) await that.uploadLocalPicListToCloud();
+    await that.getCurrentAddressInfo();
+    await that.getCurrentDate();
+
+    let memoryList = that.data.memoryList;
+    let addMemory = that.data.addMemory;
+
+    memoryList.unshift(addMemory);
+    await that.updateMemoryListToCloud(memoryList);
+    that.finishAddMemory();
+  },
+
+  /**
+   * 上传本地图片列表到云端
+   */
+  async uploadLocalPicListToCloud() {
+    let that = this;
+    let proArr = []; // promise返回值数组
+    let localPicPathList = that.data.addMemory.localPicPathList;
+    for (var i = 0; i < localPicPathList.length; i++) {
+      proArr[i] = new Promise(function (resolve, reject) {
+        wx.getFileSystemManager().readFile({
+          filePath: localPicPathList[0],
+          encoding: 'base64',
+          success: res => {
+            wx.cloud.callFunction({
+                name: 'uploadLocalPicList',
+                data: {
+                  localPic: res.data
+                }
+              })
+              .then(res => {
+                if (res.result && res.result.result) {
+                  resolve(res.result.fileId);
+                } else {
+                  resolve('');
+                }
+              })
+              .catch(error => {
+                resolve('');
+              })
+          }
+        })
+      })
+    }
+    return Promise.all(proArr).then((res) => {
+      //全都图片都上传成功后
+      that.setData({
+        [`${`addMemory.${'cloudPicPathList'}`}`]: res
+      })
+    }).catch((err) => {
+      wx.hideLoading();
+      that.showErrorTip();
+    })
+  },
+
+  /**
+   * 获取用户当前地址信息
+   */
+  async getCurrentAddressInfo() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.startLocationUpdate().then(res => {
+          wx.onLocationChange(async (res) => {
+            await that.getCurrentLocation(res.latitude, res.longitude)
+            wx.offLocationChange();
+            wx.stopLocationUpdate();
+            resolve(true);
+          })
+        })
+        .catch(err => {
+          resolve(false);
+        })
+    })
+
+    await p;
+  },
+
+  /**
+   * 获取用户当前位置信息
+   * @param {String} latitude 纬度
+   * @param {String} longitude 经度
+   */
+  async getCurrentLocation(latitude, longitude) {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      qqmapsdk.reverseGeocoder({
+        location: {
+          latitude: latitude,
+          longitude: longitude
+        },
+        async success(res) {
+          if (res && res.result) {
+            let address = res.result.address ? res.result.address : ''; // 详细地址
+            let city = res.result.ad_info.city ? res.result.ad_info.city : ''; // 城市
+            let district = res.result.ad_info.district ? res.result.ad_info.district : ''; // 区
+            let simpleAddress = district ? district : city; // 简易地址
+            if (district != '') await that.getCurrentWeather(district, address, simpleAddress); // 获取当前位置天气
+            else if (city != '') await that.getCurrentWeather(city, address, simpleAddress);
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        }
+      })
+    })
+
+    await p;
+  },
+
+  /**
+   * 获取用户当前天气信息
+   * @param {String} location 位置信息
+   * @param {String} address 详细地址
+   * @param {String} simpleAddress 简易地址
+   */
+  async getCurrentWeather(location, address, simpleAddress) {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.request({
+        url: 'https://free-api.heweather.net/s6/weather/now',
+        data: {
+          location: location,
+          key: "2ce65b27e7784d0f85ecd7b8127f5e2d"
+        },
+        success(res) {
+          let weather = res.data.HeWeather6[0].now.cond_txt ? res.data.HeWeather6[0].now.cond_txt : '';
+          let temperature = res.data.HeWeather6[0].now.fl ? res.data.HeWeather6[0].now.fl + '℃' : '';
+          that.setData({
+            [`${`addMemory.${'address'}`}`]: address + ' ' + weather + ' ' + temperature,
+            [`${`addMemory.${'simpleAddress'}`}`]: simpleAddress + ' ' + weather + ' ' + temperature
+          })
+          resolve(true);
+        },
+        fail(err) {
+          resolve(false);
+        }
+      })
+    })
+
+    await p;
+  },
+
+  /**
+   * 获取当前日期
+   */
+  async getCurrentDate() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'getCurrentDate'
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            let date = res.result.currentDate;
+            that.setData({
+              [`${`addMemory.${'date'}`}`]: date,
+              [`${`addMemory.${'id'}`}`]: new Date(date).getTime()
+            })
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    if (!result) that.showErrorTip();
+  },
+
+  /**
+   * 完成回忆的添加
+   */
+  finishAddMemory() {
+    let that = this;
+    let addMemory = {
+      title: '',
+      localPicPathList: [],
+      content: '',
+      cloudPicPathList: [],
+      id: 0,
+      date: '',
+      address: '',
+      simpleAddress: ''
+    };
+    that.setData({
+      showAddMemory: false,
+      showPopup: false,
+      addMemory: addMemory
+    })
+    wx.hideLoading();
+    wx.showToast({
+      title: '记录成功',
+      icon: 'none',
+      duration: 400
+    })
   },
 
   /**

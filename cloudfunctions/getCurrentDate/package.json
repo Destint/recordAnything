@@ -1,0 +1,15 @@
+{
+  "name": "getCurrentDate",
+  "version": "1.0.0",
+  "description": "Gets the current server time.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trick",
+  "date": "2022-01-21 11:31:00",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.5.3"
+  }
+}
