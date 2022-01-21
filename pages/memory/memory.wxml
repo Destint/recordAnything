@@ -37,7 +37,7 @@
           <text class="text-memoryCell-date">{{item.date}}</text>
           <text class="text-memoryCell-address">{{item.simpleAddress}}</text>
         </view>
-        <image class="img-memoryCell-editor" src="../../images/img_editor.png" catchtap="onClickEditorMemory" data-id="{{item.id}}"></image>
+        <image class="img-memoryCell-editor" src="../../images/img_editor.png" catchtap="onClickEditorMemory" data-id="{{item.id}}" data-title="{{item.title}}"></image>
       </view>
     </block>
   </block>

@@ -113,7 +113,16 @@ Page({
   onClickEditorMemory(e) {
     let that = this;
     let memoryId = e.currentTarget.dataset.id; // 点击的回忆id
-    console.log("点击编辑回忆:" + memoryId);
+    let memoryTitle = e.currentTarget.dataset.title; // 点击的回忆标题
+    wx.showActionSheet({
+      itemList: ['删除该回忆'],
+      success(res) {
+        if (res.tapIndex == 0) that.deleteMemoryById(memoryId, memoryTitle);
+      },
+      fail(res) {
+        // 点取消或空白处
+      }
+    })
   },
 
   /**
@@ -684,6 +693,72 @@ Page({
       icon: 'none',
       duration: 400
     })
+  },
+
+  /**
+   * 通过回忆Id删除该回忆
+   * @param {String} memoryId 回忆Id
+   * @param {String} memoryTitle 回忆标题
+   */
+  deleteMemoryById(memoryId, memoryTitle) {
+    let that = this;
+    wx.showModal({
+      title: '温馨提示',
+      content: '是否删除《' + memoryTitle + '》这篇回忆',
+      cancelText: '取消',
+      confirmText: '确定',
+      async success(res) {
+        if (res.confirm) {
+          let memoryList = that.data.memoryList;
+          wx.showLoading({
+            title: '删除中...',
+            mask: true
+          })
+          let deleteMemory = memoryList.find(function (object) {
+            return object.id == memoryId;
+          })
+          let deleteMemoryIndex = memoryList.findIndex(function (object) {
+            return object.id == memoryId;
+          })
+          memoryList.splice(deleteMemoryIndex, 1);
+          that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
+          await that.updateMemoryListToCloud(memoryList);
+          wx.hideLoading();
+          wx.showToast({
+            title: '删除成功',
+            icon: 'none',
+            duration: 1500
+          })
+        }
+      }
+    })
+  },
+
+  /**
+   * 从云端删除云存储图片列表
+   * @param {Array} cloudPicPathList 云存储图片列表
+   */
+  async deletePicListFromCloud(cloudPicPathList) {
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'deletePicListFromCloud',
+          data: {
+            cloudPicPathList: cloudPicPathList
+          },
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+
+    await p;
   },
 
   /**
