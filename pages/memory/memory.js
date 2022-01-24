@@ -214,7 +214,6 @@ Page({
       })
     }
     await Promise.all(bigProArr).then(async (res) => {
-      console.log("是否需要更新回忆:" + updateType);
       if (updateType == true) await that.updateMemoryListToCloud(memoryList);
     })
   },
