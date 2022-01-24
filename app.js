@@ -12,6 +12,7 @@ App({
       traceUser: true
     })
     that.checkVersionUpdate();
+    that.updateAccessToCloud();
   },
 
   /**
@@ -28,6 +29,17 @@ App({
         }
       })
     }
+  },
+
+  /**
+   * 更新用户访问记录到云端
+   */
+  updateAccessToCloud() {
+    wx.cloud.callFunction({
+        name: 'updateAccessByOpenId',
+      })
+      .then(res => {})
+      .catch(error => {})
   },
 
   /**

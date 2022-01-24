@@ -1,0 +1,38 @@
+<!-- 我的页面 -->
+<view class="view-page-mine">
+  <!-- 顶部栏 -->
+  <view class="view-top-box">
+  </view>
+  <!-- 功能栏 -->
+  <view class="view-function-box">
+    <!-- 意见反馈 -->
+    <!-- <view class="view-function" bindtap="onClickFeedback">
+      <image class="img-function" src="../../images/img_feedback.png"></image>
+      <text class="text-function">意见反馈</text>
+    </view> -->
+    <!-- 联系客服 -->
+    <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_contact.png"></image>
+      <text class="text-function">联系客服</text>
+      <button class="btn-function" open-type="contact"></button>
+    </view>
+    <!-- 分享小程序 -->
+    <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_share.png"></image>
+      <text class="text-function">分享回忆录</text>
+      <button class="btn-function" open-type="share"></button>
+    </view>
+    <!-- 关于小程序 -->
+    <view class="view-function" bindtap="onClickAbout" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_about.png"></image>
+      <text class="text-function">关于回忆录</text>
+    </view>
+    <!-- 设置公告 -->
+    <!-- <block wx:if="{{showSetNotice}}">
+      <view class="view-function" bindtap="onClickSetNotice" style="border-top: 1rpx solid #E4E4E4;">
+        <image class="img-function-notice" src="../../images/img_notice_1.png"></image>
+        <text class="text-function">设置公告</text>
+      </view>
+    </block> -->
+  </view>
+</view>

@@ -82,7 +82,7 @@
           <text class="text-memoryInfo-content">{{memoryInfo.date}}</text>
         </view>
       </block>
-      <block wx:if="{{memoryInfo.address != ' '}}">
+      <block wx:if="{{memoryInfo.address && memoryInfo.address != ' '}}">
         <!-- 回忆的地址栏 -->
         <view class="view-memoryInfo-layout">
           <image class="img-memoryInfo-Icon" src="../../images/img_address.png"></image>

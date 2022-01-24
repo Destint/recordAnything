@@ -38,6 +38,7 @@ Page({
    */
   async onLoad() {
     let that = this;
+    wx.showShareMenu();
     qqmapsdk = new QQMapWX({
       key: '3XKBZ-WP4CG-KQVQM-IJ2WK-7QAE7-2ZFKZ' // 腾讯位置服务密钥
     })
@@ -63,7 +64,13 @@ Page({
   /**
    * 页面被用户分享时执行
    */
-  onShareAppMessage() {},
+  onShareAppMessage() {
+    return {
+      title: '回忆录-所记往事皆为回忆',
+      path: '/pages/memory/memory',
+      imageUrl: '/images/img_logo.png'
+    };
+  },
 
   /**
    * 触发下拉刷新时执行
