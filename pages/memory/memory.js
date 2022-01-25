@@ -520,33 +520,23 @@ Page({
     let that = this;
     let proArr = []; // promise返回值数组
     let localPicPathList = that.data.addMemory.localPicPathList;
-    for (var i = 0; i < localPicPathList.length; i++) {
-      proArr[i] = new Promise(function (resolve, reject) {
-        wx.getFileSystemManager().readFile({
-          filePath: localPicPathList[i],
-          encoding: 'base64',
-          success: res => {
-            wx.cloud.callFunction({
-                name: 'uploadLocalPicList',
-                data: {
-                  localPic: res.data
-                }
-              })
-              .then(res => {
-                if (res.result && res.result.result) {
-                  resolve(res.result.fileId);
-                } else {
-                  resolve('');
-                }
-              })
-              .catch(error => {
-                resolve('');
-              })
-          }
-        })
+    for (let i = 0; i < localPicPathList.length; i++) {
+      proArr[i] = new Promise(async function (resolve, reject) {
+        let currentInfo = await that.getOpenIdFromCloud();
+        if (!currentInfo) resolve('');
+        wx.cloud.uploadFile({
+            cloudPath: currentInfo.openId + '/' + currentInfo.date + '.jpg', // 上传至云端的路径
+            filePath: localPicPathList[i], // 上传的临时文件路径
+          })
+          .then(res => {
+            resolve(res.fileID);
+          })
+          .catch(error => {
+            resolve('');
+          })
       })
     }
-    return Promise.all(proArr).then((res) => {
+    await Promise.all(proArr).then((res) => {
       //全都图片都上传成功后
       that.setData({
         [`${`addMemory.${'cloudPicPathList'}`}`]: res
@@ -766,6 +756,27 @@ Page({
     });
 
     await p;
+  },
+
+  /**
+   * 从云端获取用户openId
+   */
+  async getOpenIdFromCloud() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'getOpenId'
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(res.result);
+          } else resolve(false);
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    return await p;
   },
 
   /**

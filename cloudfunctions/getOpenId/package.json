@@ -1,7 +1,7 @@
 {
   "name": "uploadLocalPicList",
   "version": "1.0.0",
-  "description": "Upload a list of local images",
+  "description": "Get the openID of the user.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
