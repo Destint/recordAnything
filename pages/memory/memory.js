@@ -403,39 +403,39 @@ Page({
     }
     if (that.recordMemoryType == true) return;
     that.recordMemoryType = true;
-    if (!await that.checkMsgSecFromCloud(memoryTitle)) {
-      wx.showModal({
-        showCancel: false,
-        title: '温馨提示',
-        content: '回忆标题存在违规信息',
-        confirmText: '确定'
-      })
-      that.recordMemoryType = false;
-      return;
-    }
-    if (memoryContent && !await that.checkMsgSecFromCloud(memoryContent)) {
-      wx.showModal({
-        showCancel: false,
-        title: '温馨提示',
-        content: '回忆内容存在违规信息',
-        confirmText: '确定'
-      })
-      that.recordMemoryType = false;
-      return;
-    }
     wx.showModal({
         title: '温馨提示',
         content: '确定记录这篇回忆了吗',
         cancelText: '取消',
         confirmText: '确定'
       })
-      .then(res => {
+      .then(async (res) => {
         if (res.confirm) {
           wx.showLoading({
             title: '记录中...',
             mask: true
           })
           that.recordMemoryType = false;
+          if (!await that.checkMsgSecFromCloud(memoryTitle)) {
+            wx.hideLoading();
+            wx.showModal({
+              showCancel: false,
+              title: '温馨提示',
+              content: '回忆标题存在违规信息',
+              confirmText: '确定'
+            })
+            return;
+          }
+          if (memoryContent && !await that.checkMsgSecFromCloud(memoryContent)) {
+            wx.hideLoading();
+            wx.showModal({
+              showCancel: false,
+              title: '温馨提示',
+              content: '回忆内容存在违规信息',
+              confirmText: '确定'
+            })
+            return;
+          }
           that.startAddMemory();
         } else {
           that.recordMemoryType = false;
@@ -656,9 +656,10 @@ Page({
         .then(res => {
           if (res.result && res.result.result) {
             let date = res.result.currentDate;
+            let id = res.result.currentId;
             that.setData({
               [`${`addMemory.${'date'}`}`]: date,
-              [`${`addMemory.${'id'}`}`]: new Date(date).getTime()
+              [`${`addMemory.${'id'}`}`]: id
             })
             resolve(true);
           } else {

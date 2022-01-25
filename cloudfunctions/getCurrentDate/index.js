@@ -22,7 +22,8 @@ exports.main = async (event, context) => {
   try {
     return {
       result: true,
-      currentDate: formatTime(new Date())
+      currentDate: formatTime(new Date()),
+      currentId: new Date().getTime()
     }
   } catch (e) {
     return {
