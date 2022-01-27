@@ -31,7 +31,7 @@ Page({
     }, // 添加的回忆内容
   },
 
-  recordMemoryType: false, // 记录回忆状态(防止两次点击记录回忆)
+  recordMemoryState: false, // 记录回忆状态(防止两次点击记录回忆)
 
   /**
    * 页面创建时执行
@@ -169,7 +169,7 @@ Page({
     let that = this;
     let bigProArr = []; // 大循环promise
     let smallProArr = []; // 小循环promise
-    let updateType = false; // 是否向云端更新回忆
+    let updateState = false; // 是否向云端更新回忆
     for (let i = 0; i < memoryList.length; i++) {
       bigProArr[i] = new Promise(async function (resolve, reject) {
         for (let j = 0; j < memoryList[i].cloudPicPathList.length; j++) {
@@ -180,7 +180,7 @@ Page({
                 })
                 .then(res => {
                   memoryList[i].localPicPathList[j] = res.tempFilePath;
-                  updateType = true;
+                  updateState = true;
                   resolve(true);
                 })
                 .catch(res => {
@@ -199,7 +199,7 @@ Page({
                     })
                     .then(res => {
                       memoryList[i].localPicPathList[j] = res.tempFilePath;
-                      updateType = true;
+                      updateState = true;
                       resolve(true);
                     })
                     .catch(res => {
@@ -214,7 +214,7 @@ Page({
       })
     }
     await Promise.all(bigProArr).then(async (res) => {
-      if (updateType == true) await that.updateMemoryListToCloud(memoryList);
+      if (updateState == true) await that.updateMemoryListToCloud(memoryList);
     })
   },
 
@@ -401,8 +401,8 @@ Page({
       })
       return;
     }
-    if (that.recordMemoryType == true) return;
-    that.recordMemoryType = true;
+    if (that.recordMemoryState == true) return;
+    that.recordMemoryState = true;
     wx.showModal({
         title: '温馨提示',
         content: '确定记录这篇回忆了吗',
@@ -415,7 +415,7 @@ Page({
             title: '记录中...',
             mask: true
           })
-          that.recordMemoryType = false;
+          that.recordMemoryState = false;
           if (!await that.checkMsgSecFromCloud(memoryTitle)) {
             wx.hideLoading();
             wx.showModal({
@@ -438,7 +438,7 @@ Page({
           }
           that.startAddMemory();
         } else {
-          that.recordMemoryType = false;
+          that.recordMemoryState = false;
         }
       })
   },

@@ -1,15 +1,19 @@
+<!-- 防止弹窗穿透 -->
+<page-meta page-style="overflow: {{showPopup ? 'hidden' : 'visible'}}" />
 <!-- 我的页面 -->
 <view class="view-page-mine">
   <!-- 顶部栏 -->
   <view class="view-top-box">
+    <open-data class="img-user-avatar" type="userAvatarUrl"></open-data>
+    <open-data class="img-user-nickName" type="userNickName"></open-data>
   </view>
   <!-- 功能栏 -->
   <view class="view-function-box">
     <!-- 意见反馈 -->
-    <!-- <view class="view-function" bindtap="onClickFeedback">
+    <view class="view-function" bindtap="onClickFeedback">
       <image class="img-function" src="../../images/img_feedback.png"></image>
       <text class="text-function">意见反馈</text>
-    </view> -->
+    </view>
     <!-- 联系客服 -->
     <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
       <image class="img-function" src="../../images/img_contact.png"></image>
@@ -35,4 +39,47 @@
       </view>
     </block> -->
   </view>
+  <block wx:if="{{showFeedback}}">
+    <!-- 意见反馈页的蒙版 -->
+    <view class="view-mask-box"></view>
+    <!-- 意见反馈页 -->
+    <view class="view-feedback-box">
+      <text class="text-viewName">意见反馈</text>
+      <!-- 意见反馈图片栏 -->
+      <view class="view-feedback-localPicPathList">
+        <block wx:if="{{localPicPathList.length}}">
+          <block wx:for-items="{{localPicPathList}}" wx:key="index">
+            <view class="view-feedback-picCell" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
+              <image class="img-feedback-picCell" src="{{item}}" bindtap="onPreviewAddPic" data-index="{{index}}"></image>
+              <image class="img-feedback-deletePicCell" src="../../images/img_delete.png" bindtap="onClickDeletePic" data-index="{{index}}"></image>
+            </view>
+          </block>
+        </block>
+        <block wx:if="{{localPicPathList.length < 5}}">
+          <!-- 添加图片按钮 -->
+          <view class="view-feedback-addPic" style="margin-left:{{localPicPathList.length == 0 ? '0' : '10rpx'}}" bindtap="onClickAddPic">
+            <image class="img-feedback-dottedBox" src="../../images/img_dotted_box.png"></image>
+            <image class="img-feedback-picIcon" src="../../images/img_add_picture.png"></image>
+            <text>添加图片</text>
+          </view>
+        </block>
+      </view>
+      <!-- 意见反馈内容栏 -->
+      <view class="view-feedback-content">
+        <textarea class="textarea-feedback-content" maxlength="-1" placeholder="请尽可能详细的描述您要反馈的问题或建议..." bindinput="feedbackContent" placeholder-style="color: rgba(70,123,115,0.5);" disable-default-padding='true' cursor-spacing="30"></textarea>
+      </view>
+      <image class="img-feedback-record" src="../../images/img_upload.png" bindtap="onClickUploadFeedback"></image>
+      <image class="img-feedback-back" src="../../images/img_back.png" bindtap="onClickBackMine"></image>
+    </view>
+  </block>
+  <block wx:if="{{showAboutSelf}}">
+    <!-- 关于回忆录的蒙版 -->
+    <view class="view-mask-box" bindtap="onClickAboutSelfMask"></view>
+    <view class="view-aboutSelf-box">
+      <text class="text-viewName">关于回忆录</text>
+      <text class="text-aboutSelf">{{aboutSelfContent}}</text>
+      <image class="img-praise" src="{{praiseState ? '../../images/img_praise.png' : '../../images/img_no_praise.png'}}" bindtap="onClickPraise"></image>
+      <text class="text-praiseSum">{{praiseSum}}</text>
+    </view>
+  </block>
 </view>

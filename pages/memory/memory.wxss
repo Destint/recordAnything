@@ -55,6 +55,7 @@ page {
   width: 50rpx;
   height: 50rpx;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .view-memoryCell-box {
@@ -101,6 +102,7 @@ page {
   position: relative;
   width: 90rpx;
   height: 90rpx;
+  flex-shrink: 0;
 }
 
 .view-memoryCell-info {
@@ -126,6 +128,7 @@ page {
   right: 35rpx;
   top: 50%;
   transform: translateY(-50%);
+  flex-shrink: 0;
 }
 
 .img-empty {
@@ -135,6 +138,7 @@ page {
   top: 500rpx;
   left: 50%;
   transform: translateX(-50%);
+  flex-shrink: 0;
 }
 
 .text-empty {
@@ -152,6 +156,7 @@ page {
   height: 120rpx;
   right: 90rpx;
   bottom: 200rpx;
+  flex-shrink: 0;
 }
 
 .text-addTip {
@@ -169,6 +174,7 @@ page {
   height: 100rpx;
   right: 42rpx;
   bottom: 70rpx;
+  flex-shrink: 0;
 }
 
 .view-memoryMask-box {
@@ -354,6 +360,7 @@ page {
   height: 100rpx;
   right: 50rpx;
   margin-top: 20rpx;
+  flex-shrink: 0;
 }
 
 .img-addMemory-back {
@@ -362,4 +369,5 @@ page {
   height: 100rpx;
   left: 50rpx;
   margin-top: 20rpx;
+  flex-shrink: 0;
 }

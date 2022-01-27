@@ -1,0 +1,15 @@
+{
+  "name": "updatePraise",
+  "version": "1.0.0",
+  "description": "Update praise.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trick",
+  "date": "2022-01-27 15:28:00",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.5.3"
+  }
+}
