@@ -89,7 +89,7 @@ page {
   position: fixed;
   left: 45rpx;
   right: 45rpx;
-  height: 700rpx;
+  height: 620rpx;
   top: 50%;
   transform: translateY(-50%);
   background-color: #FBF2E3;
@@ -215,6 +215,7 @@ page {
   font-size: 30rpx;
   color: #467B73;
   margin: 65rpx 35rpx 0 35rpx;
+  line-height: 45rpx;
 }
 
 .img-praise {

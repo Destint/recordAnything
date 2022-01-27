@@ -32,6 +32,7 @@ Page({
   },
 
   recordMemoryState: false, // 记录回忆状态(防止两次点击记录回忆)
+  sortState: false, // 排序状态
 
   /**
    * 页面创建时执行
@@ -83,6 +84,7 @@ Page({
   onClickMemorySort() {
     let that = this;
     let memoryList = that.data.memoryList;
+    that.sortState = !that.sortState;
     that.setData({
       memoryList: memoryList.reverse()
     })
@@ -719,6 +721,7 @@ Page({
           })
           memoryList.splice(deleteMemoryIndex, 1);
           that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
+          if (that.sortState) memoryList = memoryList.reverse();
           await that.updateMemoryListToCloud(memoryList);
           wx.hideLoading();
           wx.showToast({
