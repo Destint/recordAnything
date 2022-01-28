@@ -20,6 +20,13 @@
       <text class="text-function">联系客服</text>
       <button class="btn-function" open-type="contact"></button>
     </view>
+    <!-- 设置公告 -->
+    <block wx:if="{{showSetNotice}}">
+      <view class="view-function" bindtap="onClickSetNotice" style="border-top: 1rpx solid #E4E4E4;">
+        <image class="img-function-notice" src="../../images/img_notice_1.png"></image>
+        <text class="text-function">设置公告</text>
+      </view>
+    </block>
     <!-- 分享小程序 -->
     <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
       <image class="img-function" src="../../images/img_share.png"></image>
@@ -31,13 +38,6 @@
       <image class="img-function" src="../../images/img_about.png"></image>
       <text class="text-function">关于回忆录</text>
     </view>
-    <!-- 设置公告 -->
-    <!-- <block wx:if="{{showSetNotice}}">
-      <view class="view-function" bindtap="onClickSetNotice" style="border-top: 1rpx solid #E4E4E4;">
-        <image class="img-function-notice" src="../../images/img_notice_1.png"></image>
-        <text class="text-function">设置公告</text>
-      </view>
-    </block> -->
   </view>
   <block wx:if="{{showFeedback}}">
     <!-- 意见反馈页的蒙版 -->
@@ -80,6 +80,17 @@
       <text class="text-aboutSelf">{{aboutSelfContent}}</text>
       <image class="img-praise" src="{{praiseState ? '../../images/img_praise.png' : '../../images/img_no_praise.png'}}" bindtap="onClickPraise"></image>
       <text class="text-praiseSum">{{praiseSum}}</text>
+    </view>
+  </block>
+  <block wx:if="{{showSetNoticeView}}">
+    <!-- 设置公告的蒙版 -->
+    <view class="view-mask-box" bindtap="onClickSetNoticeMask"></view>
+    <view class="view-setNotice-box">
+      <text class="text-viewName">设置公告</text>
+      <view class="view-setNotice-content">
+        <input class="input-setNotice" maxlength="20" placeholder="公告内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNoticeContent" />
+      </view>
+      <image class="img-setNotice-update" src="../../images/img_upload.png" bindtap="onClickUpdateNotice"></image>
     </view>
   </block>
 </view>

@@ -231,3 +231,40 @@ page {
   font-size: 30rpx;
   color: #467B73;
 }
+
+.view-setNotice-box {
+  position: fixed;
+  left: 45rpx;
+  right: 45rpx;
+  height: 280rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #FBF2E3;
+  border-radius: 30rpx;
+}
+
+.view-setNotice-content {
+  position: relative;
+  margin: 50rpx 35rpx 0 35rpx;
+  height: 80rpx;
+  border-bottom: 1rpx solid #467B73;
+  display: flex;
+  align-items: center;
+}
+
+.input-setNotice {
+  position: relative;
+  font-size: 30rpx;
+  width: 100%;
+  height: 60rpx;
+  color: #467B73;
+}
+
+.img-setNotice-update {
+  position: absolute;
+  width: 100rpx;
+  height: 100rpx;
+  right: 50rpx;
+  margin-top: 20rpx;
+  flex-shrink: 0;
+}

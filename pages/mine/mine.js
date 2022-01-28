@@ -12,6 +12,8 @@ Page({
     showPopup: false, // 是否显示弹出窗口(true可以防止弹窗穿透)
     showFeedback: false, // 是否显示意见反馈
     showSetNotice: false, // 显示设置公告
+    showSetNoticeView: false, // 显示设置公告页面
+    setNoticeContent: '', // 设置公告的内容
     localPicPathList: [], // 本地图片路径列表
     cloudPicPathList: [], // 云端图片路径列表
     feedbackContent: '', // 意见反馈内容
@@ -29,6 +31,7 @@ Page({
   onLoad() {
     let that = this;
     wx.showShareMenu();
+    that.showSetNoticeFunction();
   },
 
   /**
@@ -359,6 +362,139 @@ Page({
       })
       wx.setStorageSync('praiseState', praiseData.praiseState);
       wx.setStorageSync('praiseSum', praiseData.praiseSum);
+    }
+  },
+
+  /**
+   * 点击设置公告
+   */
+  onClickSetNotice() {
+    let that = this;
+    that.setData({
+      showPopup: true,
+      showSetNoticeView: true
+    })
+  },
+
+  /**
+   * 点击设置公告页蒙版
+   */
+  onClickSetNoticeMask() {
+    let that = this;
+    that.setData({
+      showPopup: false,
+      showSetNoticeView: false,
+      setNoticeContent: ''
+    })
+  },
+
+  /**
+   * 设置公告的内容
+   * @param {Object} e 当前点击的对象
+   */
+  setNoticeContent(e) {
+    let that = this;
+    that.setData({
+      setNoticeContent: e.detail.value
+    })
+  },
+
+  /**
+   * 点击更新公告
+   */
+  onClickUpdateNotice() {
+    let that = this;
+    if (!that.data.setNoticeContent) {
+      wx.showToast({
+        title: '公告内容不能为空',
+        icon: 'none'
+      })
+    } else {
+      wx.showModal({
+          title: '温馨提示',
+          content: '确定更新公告吗',
+          cancelText: '取消',
+          confirmText: '确定'
+        })
+        .then(res => {
+          if (res.confirm) {
+            wx.showLoading({
+              title: '更新中...',
+            })
+            that.updateNotice();
+          }
+        })
+    }
+  },
+
+  /**
+   * 更新小程序公告
+   */
+  async updateNotice() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'updateNotice',
+          data: {
+            noticeData: that.data.setNoticeContent
+          }
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    let updateTip = '更新完成';
+    wx.hideLoading();
+    if (!result) updateTip = '更新失败';
+    that.setData({
+      showPopup: false,
+      showSetNoticeView: false,
+      setNoticeContent: ''
+    })
+    wx.showToast({
+      title: updateTip,
+      icon: 'none'
+    })
+  },
+
+  /**
+   * 显示设置公告功能
+   */
+  async showSetNoticeFunction() {
+    let that = this;
+    let showSetNoticeFunction = false;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'updateNotice',
+          data: {
+            noticeData: ''
+          }
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            if (res.result.showSetNoticeFunction) showSetNoticeFunction = true;
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    if (result && showSetNoticeFunction) {
+      that.setData({
+        showSetNotice: showSetNoticeFunction
+      })
     }
   },
 
