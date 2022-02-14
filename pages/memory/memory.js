@@ -76,7 +76,11 @@ Page({
   /**
    * 触发下拉刷新时执行
    */
-  onPullDownRefresh() {},
+  onPullDownRefresh() {
+    let that = this;
+    that.getNoticeDataFromCloud();
+    wx.stopPullDownRefresh();
+  },
 
   /**
    * 点击回忆排序
