@@ -710,7 +710,7 @@ Page({
       content: '是否删除《' + memoryTitle + '》这篇回忆',
       cancelText: '取消',
       confirmText: '确定',
-      async success(res) {
+      success(res) {
         if (res.confirm) {
           let memoryList = that.data.memoryList;
           wx.showLoading({
@@ -723,16 +723,37 @@ Page({
           let deleteMemoryIndex = memoryList.findIndex(function (object) {
             return object.id == memoryId;
           })
+          if (deleteMemory.cloudPicPathList && deleteMemory.cloudPicPathList[0]) that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
           memoryList.splice(deleteMemoryIndex, 1);
-          if(deleteMemory.cloudPicPathList && deleteMemory.cloudPicPathList[0]) that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
-          if (that.sortState) memoryList = memoryList.reverse();
-          await that.updateMemoryListToCloud(memoryList);
-          wx.hideLoading();
-          wx.showToast({
-            title: '删除成功',
-            icon: 'none',
-            duration: 1500
+          that.setData({
+            memoryList: memoryList,
+            memorySum: memoryList.length
           })
+          wx.setStorageSync('memoryList', memoryList);
+          wx.cloud.callFunction({
+              name: 'deleteMemoryById',
+              data: {
+                memoryId: memoryId
+              },
+            })
+            .then(res => {
+              console.log(res)
+              if (res.result && res.result.result) {
+                wx.hideLoading();
+                wx.showToast({
+                  title: '删除成功',
+                  icon: 'none',
+                  duration: 1500
+                })
+              } else {
+                wx.hideLoading();
+                that.showErrorTip();
+              }
+            })
+            .catch(error => {
+              wx.hideLoading();
+              that.showErrorTip();
+            })
         }
       }
     })
