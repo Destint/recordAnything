@@ -31,7 +31,6 @@ Page({
     }, // 添加的回忆内容
   },
 
-  sortState: false, // 排序状态
   recordMemoryState: false, // 记录回忆状态(防止两次点击记录回忆)
 
   /**
@@ -88,7 +87,6 @@ Page({
   onClickMemorySort() {
     let that = this;
     let memoryList = that.data.memoryList;
-    that.sortState = !that.sortState;
     that.setData({
       memoryList: memoryList.reverse()
     })
@@ -511,15 +509,9 @@ Page({
     await that.getCurrentAddressInfo();
     await that.getCurrentDate();
 
-    let memoryList = that.data.memoryList;
     let addMemory = that.data.addMemory;
 
-    if (that.sortState) {
-      that.sortState = false;
-      memoryList = memoryList.reverse();
-    }
-    memoryList.unshift(addMemory);
-    await that.updateMemoryListToCloud(memoryList);
+    await that.addMemoryToCloud(addMemory);
     that.finishAddMemory();
   },
 
@@ -661,6 +653,39 @@ Page({
               [`${`addMemory.${'date'}`}`]: date,
               [`${`addMemory.${'id'}`}`]: id
             })
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    if (!result) that.showErrorTip();
+  },
+
+  /**
+   * 向云端添加回忆
+   * @param {Object} memory 添加的回忆
+   */
+  async addMemoryToCloud(memory) {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'addMemoryByOpenId',
+          data: {
+            memory: memory
+          }
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            that.setData({
+              memoryList: res.result.memoryList,
+              memorySum: res.result.memoryList.length
+            })
+            wx.setStorageSync('memoryList', res.result.memoryList);
             resolve(true);
           } else {
             resolve(false);
