@@ -31,6 +31,7 @@ Page({
     }, // 添加的回忆内容
   },
 
+  sortState: false, // 排序状态
   recordMemoryState: false, // 记录回忆状态(防止两次点击记录回忆)
 
   /**
@@ -87,6 +88,7 @@ Page({
   onClickMemorySort() {
     let that = this;
     let memoryList = that.data.memoryList;
+    that.sortState = !that.sortState;
     that.setData({
       memoryList: memoryList.reverse()
     })
@@ -512,6 +514,10 @@ Page({
     let memoryList = that.data.memoryList;
     let addMemory = that.data.addMemory;
 
+    if (that.sortState) {
+      that.sortState = false;
+      memoryList = memoryList.reverse();
+    }
     memoryList.unshift(addMemory);
     await that.updateMemoryListToCloud(memoryList);
     that.finishAddMemory();
