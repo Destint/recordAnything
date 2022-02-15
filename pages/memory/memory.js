@@ -724,7 +724,7 @@ Page({
             return object.id == memoryId;
           })
           memoryList.splice(deleteMemoryIndex, 1);
-          that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
+          if(deleteMemory.cloudPicPathList && deleteMemory.cloudPicPathList[0]) that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
           if (that.sortState) memoryList = memoryList.reverse();
           await that.updateMemoryListToCloud(memoryList);
           wx.hideLoading();
