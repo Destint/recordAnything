@@ -766,7 +766,6 @@ Page({
               },
             })
             .then(res => {
-              console.log(res)
               if (res.result && res.result.result) {
                 wx.hideLoading();
                 wx.showToast({
