@@ -4,8 +4,18 @@
 <view class="view-page-mine">
   <!-- 顶部栏 -->
   <view class="view-top-box">
-    <open-data class="img-user-avatar" type="userAvatarUrl"></open-data>
-    <open-data class="img-user-nickName" type="userNickName"></open-data>
+    <block wx:if="{{userAvatar != ''}}">
+      <image class="img-user-avatar" src="{{userAvatar}}"></image>
+    </block>
+    <block wx:else>
+      <open-data class="img-user-avatar" type="userAvatarUrl"></open-data>
+    </block>
+    <block wx:if="{{userNickname != ''}}">
+      <text class="text-user-nickName">{{userNickname}}</text>
+    </block>
+    <block wx:else>
+      <open-data class="text-user-nickName" type="userNickName"></open-data>
+    </block>
   </view>
   <!-- 功能栏 -->
   <view class="view-function-box">
@@ -19,6 +29,16 @@
       <image class="img-function" src="../../images/img_contact.png"></image>
       <text class="text-function">联系客服</text>
       <button class="btn-function" open-type="contact"></button>
+    </view>
+    <!-- 设置头像 -->
+    <view class="view-function" bindtap="onClickSetAvatar" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_avatar.png"></image>
+      <text class="text-function">设置头像</text>
+    </view>
+    <!-- 设置昵称 -->
+    <view class="view-function" bindtap="onClickSetNickname" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_nickname.png"></image>
+      <text class="text-function">设置昵称</text>
     </view>
     <!-- 设置公告 -->
     <block wx:if="{{showSetNotice}}">
@@ -85,12 +105,23 @@
   <block wx:if="{{showSetNoticeView}}">
     <!-- 设置公告的蒙版 -->
     <view class="view-mask-box" bindtap="onClickSetNoticeMask"></view>
-    <view class="view-setNotice-box">
+    <view class="view-set-box">
       <text class="text-viewName">设置公告</text>
-      <view class="view-setNotice-content">
-        <input class="input-setNotice" maxlength="20" placeholder="公告内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNoticeContent" />
+      <view class="view-set-content">
+        <input class="input-set-content" maxlength="20" placeholder="公告内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNoticeContent" />
       </view>
-      <image class="img-setNotice-update" src="../../images/img_upload.png" bindtap="onClickUpdateNotice"></image>
+      <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUpdateNotice"></image>
+    </view>
+  </block>
+  <block wx:if="{{showSetNicknameView}}">
+    <!-- 设置昵称的蒙版 -->
+    <view class="view-mask-box" bindtap="onClickSetNicknameMask"></view>
+    <view class="view-set-box">
+      <text class="text-viewName">设置昵称</text>
+      <view class="view-set-content">
+        <input class="input-set-content" maxlength="10" placeholder="请输入昵称..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNicknameContent" />
+      </view>
+      <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUpdateNickname"></image>
     </view>
   </block>
 </view>

@@ -19,11 +19,18 @@ Page({
     feedbackContent: '', // 意见反馈内容
     showAboutSelf: false, // 显示关于回忆录
     aboutSelfContent: '这是一个可以《留住回忆》的小程序。\n可选的需要小程序授权的功能：\n1、开启手机和小程序的定位服务，可以在记录回忆时记下当前的位置与天气。\n2、记录回忆时可以从手机相册中选择想要的图片一同记录。\n如果您在使用小程序时遇到任何问题或者您对小程序有更好的建议或想法，欢迎通过《意见反馈》或《联系客服》功能来向开发者反馈。', // 关于回忆录的文本
-    praiseState: wx.getStorageSync('praiseState'), // 是否赞美小程序
-    praiseSum: wx.getStorageSync('praiseSum') // 赞美小程序的总人数
+    praiseState: wx.getStorageSync('praiseState') ? wx.getStorageSync('praiseState') : false, // 是否赞美小程序
+    praiseSum: wx.getStorageSync('praiseSum') ? wx.getStorageSync('praiseSum') : 0, // 赞美小程序的总人数
+    userAvatar: wx.getStorageSync('userAvatar') ? wx.getStorageSync('userAvatar') : '', // 用户头像
+    setNicknameContent: '', // 设置昵称的内容
+    showSetNicknameView: false, // 显示设置昵称页面
+    userNickname: wx.getStorageSync('userNickname') ? wx.getStorageSync('userNickname') : '', // 用户头像
   },
 
   uploadFeedbackState: false, // 上传意见反馈的状态(防止两次点击记录回忆)
+  userAvatar: {
+    cloudAvatarPath: '' // 云端头像路径
+  }, // 用户头像
 
   /**
    * 页面创建时执行
@@ -32,6 +39,8 @@ Page({
     let that = this;
     wx.showShareMenu();
     that.showSetNoticeFunction();
+    that.checkLocalAvatarPath();
+    that.checkNickname();
   },
 
   /**
@@ -452,13 +461,13 @@ Page({
     });
     let result = await p;
     let updateTip = '更新完成';
-    wx.hideLoading();
     if (!result) updateTip = '更新失败';
     that.setData({
       showPopup: false,
       showSetNoticeView: false,
       setNoticeContent: ''
     })
+    wx.hideLoading();
     wx.showToast({
       title: updateTip,
       icon: 'none'
@@ -496,6 +505,270 @@ Page({
         showSetNotice: showSetNoticeFunction
       })
     }
+  },
+
+  /**
+   * 点击设置头像
+   */
+  onClickSetAvatar() {
+    let that = this;
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album'],
+      sizeType: ['compressed'],
+      success(res) {
+        wx.showLoading({
+          title: '设置中...',
+          mask: true
+        })
+        let tempFiles = res.tempFiles;
+        wx.compressImage({
+          src: tempFiles[0].tempFilePath,
+          async success(res) {
+            let cloudAvatarPath = await that.uploadLocalAvatarToCloud(res.tempFilePath);
+            that.userAvatar.cloudAvatarPath = cloudAvatarPath;
+            wx.setStorageSync('userAvatar', res.tempFilePath);
+            await that.updateUserAvatarToCloud();
+          }
+        })
+      }
+    })
+  },
+
+  /**
+   * 上传头像到云端
+   * @param {String} localAvatarPath 本地头像路径
+   */
+  async uploadLocalAvatarToCloud(localAvatarPath) {
+    let that = this;
+    let p = new Promise(async function (resolve, reject) {
+      let currentInfo = await that.getOpenIdFromCloud();
+      if (!currentInfo || !localAvatarPath) resolve('');
+      wx.cloud.uploadFile({
+          cloudPath: 'userAvatar/' + currentInfo.openId + '.jpg', // 上传至云端的路径
+          filePath: localAvatarPath, // 上传的临时文件路径
+        })
+        .then(res => {
+          resolve(res.fileID);
+        })
+        .catch(error => {
+          resolve('');
+        })
+    })
+    return await p;
+  },
+
+  /**
+   * 更新用户头像到云端
+   */
+  async updateUserAvatarToCloud() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'updateUserInfoByOpenId',
+          data: {
+            userInfoData: that.userAvatar
+          }
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    let updateTip = '设置成功';
+    if (!result) updateTip = '设置失败';
+    that.setData({
+      userAvatar: wx.getStorageSync('userAvatar')
+    })
+    that.userAvatar = {
+      cloudAvatarPath: ''
+    };
+    wx.hideLoading();
+    wx.showToast({
+      title: updateTip,
+      icon: 'none'
+    })
+  },
+
+  /**
+   * 点击设置昵称
+   */
+  onClickSetNickname() {
+    let that = this;
+    that.setData({
+      showPopup: true,
+      showSetNicknameView: true
+    })
+  },
+
+  /**
+   * 点击设置昵称页蒙版
+   */
+  onClickSetNicknameMask() {
+    let that = this;
+    that.setData({
+      showPopup: false,
+      showSetNicknameView: false,
+      setNicknameContent: ''
+    })
+  },
+
+  /**
+   * 设置昵称的内容
+   * @param {Object} e 当前点击的对象
+   */
+  setNicknameContent(e) {
+    let that = this;
+    that.setData({
+      setNicknameContent: e.detail.value
+    })
+  },
+
+  /**
+   * 点击更新昵称
+   */
+  onClickUpdateNickname() {
+    let that = this;
+    if (!that.data.setNicknameContent) {
+      wx.showToast({
+        title: '昵称不能为空',
+        icon: 'none'
+      })
+    } else {
+      wx.showModal({
+          title: '温馨提示',
+          content: '确定设置昵称吗',
+          cancelText: '取消',
+          confirmText: '确定'
+        })
+        .then(res => {
+          if (res.confirm) {
+            wx.showLoading({
+              title: '设置中...',
+            })
+            that.updateNicknameToCloud();
+          }
+        })
+    }
+  },
+
+  /**
+   * 更新昵称
+   */
+  async updateNicknameToCloud() {
+    let that = this;
+    let nickname = {};
+    nickname['nickname'] = that.data.setNicknameContent;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'updateUserInfoByOpenId',
+          data: {
+            userInfoData: nickname
+          }
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    let result = await p;
+    let updateTip = '设置成功';
+    if (!result) updateTip = '设置失败';
+    wx.setStorageSync('userNickname', nickname.nickname);
+    that.setData({
+      showPopup: false,
+      showSetNicknameView: false,
+      userNickname: nickname.nickname,
+      setNicknameContent: ''
+    })
+    wx.hideLoading();
+    wx.showToast({
+      title: updateTip,
+      icon: 'none'
+    })
+  },
+
+  /**
+   * 获取用户信息
+   */
+  async getUserInfoFromCloud() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'updateUserInfoByOpenId',
+          data: {
+            getUserInfoState: true
+          }
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(res.result.userInfo);
+          } else resolve(false);
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    return await p;
+  },
+
+  /**
+   * 检测本地头像路径是否存在
+   */
+  async checkLocalAvatarPath() {
+    let that = this;
+    let localAvatarPath = wx.getStorageSync('userAvatar') ? wx.getStorageSync('userAvatar') : "fakePath";
+    wx.getImageInfo({
+        src: localAvatarPath
+      })
+      .then(res => {})
+      .catch(async (res) => {
+        let userInfoData = await that.getUserInfoFromCloud();
+        if (!userInfoData) return;
+        wx.cloud.downloadFile({
+            fileID: userInfoData.cloudAvatarPath
+          })
+          .then(res => {
+            wx.setStorageSync('userAvatar', res.tempFilePath);
+            that.setData({
+              userAvatar: res.tempFilePath
+            })
+          })
+          .catch(res => {
+            that.setData({
+              userAvatar: ''
+            })
+          })
+      })
+  },
+
+  /**
+   * 检测本地昵称是否存在
+   */
+  async checkNickname() {
+    let that = this;
+    let userNickname = wx.getStorageSync('userNickname');
+    if (userNickname) return;
+    let userInfoData = await that.getUserInfoFromCloud();
+    if (!userInfoData) return;
+    wx.setStorageSync('userNickname', userInfoData.nickname);
+    that.setData({
+      userNickname: userInfoData.nickname
+    })
   },
 
   /**

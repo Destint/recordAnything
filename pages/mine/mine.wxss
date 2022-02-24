@@ -24,12 +24,11 @@ page {
   flex-shrink: 0;
 }
 
-.img-user-nickName {
+.text-user-nickName {
   position: relative;
   color: #feffff;
   font-size: 30rpx;
   margin-left: 35rpx;
-  flex-shrink: 0;
 }
 
 .view-function-box {
@@ -232,7 +231,7 @@ page {
   color: #467B73;
 }
 
-.view-setNotice-box {
+.view-set-box {
   position: fixed;
   left: 45rpx;
   right: 45rpx;
@@ -243,7 +242,7 @@ page {
   border-radius: 30rpx;
 }
 
-.view-setNotice-content {
+.view-set-content {
   position: relative;
   margin: 50rpx 35rpx 0 35rpx;
   height: 80rpx;
@@ -252,7 +251,7 @@ page {
   align-items: center;
 }
 
-.input-setNotice {
+.input-set-content {
   position: relative;
   font-size: 30rpx;
   width: 100%;
@@ -260,7 +259,7 @@ page {
   color: #467B73;
 }
 
-.img-setNotice-update {
+.img-set-update {
   position: absolute;
   width: 100rpx;
   height: 100rpx;
