@@ -1,0 +1,15 @@
+{
+  "name": "getWishListByOpenId",
+  "version": "1.0.0",
+  "description": "Get wish list by openid.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trick",
+  "date": "2022-03-10 11:12:00",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.5.3"
+  }
+}

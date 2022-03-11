@@ -1,0 +1,76 @@
+<!-- 防止弹窗穿透 -->
+<page-meta page-style="overflow: {{showPopup ? 'hidden' : 'visible'}}" />
+<!-- 心愿页面 -->
+<view class="view-page-mine">
+  <!-- 顶部栏 -->
+  <view class="view-top-box">
+    <block wx:if="{{noticeData}}">
+      <!-- 公告栏 -->
+      <view class="view-notice-box">
+        <image class="img-notice" src="../../images/img_notice.png"></image>
+        <text class="text-notice">{{noticeData}}</text>
+      </view>
+    </block>
+    <!-- 全部回忆栏 -->
+    <view class="view-wishSum-box">
+      <text class="text-wishSum">全部心愿({{wishSum}})</text>
+      <image class="img-wishSort" src="../../images/img_sort.png" bindtap="onClickWishSort"></image>
+    </view>
+  </view>
+  <block wx:if="{{wishSum}}">
+    <block wx:for-items="{{wishList}}" wx:key="index">
+      <!-- 单个心愿栏 -->
+      <view class="view-wishCell-box" bind:touchend="touchWishEnd" data-data="{{index}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
+        <text class="text-wishCell-content" style="text-decoration:{{item.state ? 'line-through' : ''}}">{{item.content}}</text>
+        <view class="view-wishCell-info">
+          <text class="text-wishCell-startDate">{{item.startDate}}</text>
+          <text class="text-wishCell-finishData">{{item.finishDate}}</text>
+          <block wx:if="{{item.state}}">
+            <image class="img-wishCell-finish-icon" src="../../images/img_wish_finish_icon.png"></image>
+          </block>
+        </view>
+        <block wx:if="{{!item.set}}">
+          <image class="img-wishCell-editor" src="../../images/img_editor.png" bindtap="onClickEditorWish" data-data="{{index}}"></image>
+        </block>
+        <block wx:if="{{item.set}}">
+          <view class="view-wishCell-setBox">
+            <block wx:if="{{item.state}}">
+              <view class="view-wishCell-setCell" style="margin-right: 35rpx;" bindtap="onClickWishUnfinish" data-data="{{item.id}}">
+                <image class="img-wishCell-finish" src="../../images/img_wish_unfinish.png"></image>
+                <text class="text-wishCell-setName">未完成</text>
+              </view>
+            </block>
+            <block wx:else>
+              <view class="view-wishCell-setCell" style="margin-right: 35rpx;" bindtap="onClickWishFinish" data-data="{{item.id}}">
+                <image class="img-wishCell-finish" src="../../images/img_wish_finish.png"></image>
+                <text class="text-wishCell-setName">完成</text>
+              </view>
+            </block>
+            <view class="view-wishCell-setCell" bindtap="onClickWishDelete" data-data="{{item.id}}">
+              <image class="img-wishCell-delete" src="../../images/img_wish_delete.png"></image>
+              <text class="text-wishCell-setName">删除</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+  </block>
+  <block wx:else>
+    <image class="img-empty" src="../../images/img_empty.png"></image>
+    <text class="text-empty">暂无心愿</text>
+    <image class="img-guidance" src="../../images/img_guidance.png"></image>
+    <text class="text-addTip">点击这里开始添加心愿叭</text>
+  </block>
+  <image class="img-addWish" src="../../images/img_add.png" bindtap="onClickAddWish"></image>
+  <block wx:if="{{showAddWishView}}">
+    <!-- 添加心愿的蒙版 -->
+    <view class="view-mask-box" bindtap="onClickAddWishMask"></view>
+    <view class="view-addWish-box">
+      <text class="text-viewName">添加心愿</text>
+      <view class="view-wish-content">
+        <input class="input-wish-content" maxlength="20" placeholder="心愿内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="addWishContent" />
+      </view>
+      <image class="img-wish-update" src="../../images/img_upload.png" bindtap="onClickUploadWish"></image>
+    </view>
+  </block>
+</view>

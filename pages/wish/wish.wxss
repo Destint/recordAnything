@@ -1,0 +1,251 @@
+page {
+  background-color: #FBF2E3;
+}
+
+.view-top-box {
+  position: absolute;
+  width: 100%;
+  top: 0rpx;
+  height: 240rpx;
+  background-color: #467B73;
+  border-bottom-left-radius: 50rpx;
+  border-bottom-right-radius: 50rpx;
+}
+
+.view-notice-box {
+  position: absolute;
+  top: 10rpx;
+  left: 35rpx;
+  right: 35rpx;
+  display: flex;
+  align-items: center;
+}
+
+.img-notice {
+  position: relative;
+  width: 35rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.text-notice {
+  position: relative;
+  color: #FEFFFF;
+  font-size: 30rpx;
+  margin-left: 20rpx;
+}
+
+.view-wishSum-box {
+  position: absolute;
+  top: 87rpx;
+  left: 35rpx;
+  right: 35rpx;
+  display: flex;
+  align-items: center;
+}
+
+.text-wishSum {
+  position: relative;
+  color: #FEFFFF;
+  font-size: 30rpx;
+}
+
+.img-wishSort {
+  position: relative;
+  width: 50rpx;
+  height: 50rpx;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.img-empty {
+  position: absolute;
+  width: 128rpx;
+  height: 128rpx;
+  top: 500rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-shrink: 0;
+}
+
+.text-empty {
+  position: absolute;
+  font-size: 32rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 630rpx;
+  color: #467B73;
+}
+
+.img-guidance {
+  position: fixed;
+  width: 120rpx;
+  height: 120rpx;
+  right: 90rpx;
+  bottom: 200rpx;
+  flex-shrink: 0;
+}
+
+.text-addTip {
+  position: fixed;
+  right: 70rpx;
+  bottom: 330rpx;
+  font-size: 30rpx;
+  color: #467B73;
+  transform: rotate(-45deg);
+}
+
+.view-wishCell-box {
+  position: relative;
+  background-color: #FEFFFF;
+  border-radius: 30rpx;
+  top: 160rpx;
+  margin: 0 35rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-wishCell-content {
+  position: relative;
+  color: #434646;
+  font-size: 24rpx;
+  margin: 20rpx 150rpx 0 30rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+}
+
+.view-wishCell-info {
+  position: relative;
+  margin: 5rpx 150rpx 20rpx 30rpx;
+  color: #CACED1;
+  font-size: 24rpx;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+}
+
+.text-wishCell-startDate {
+  position: relative;
+}
+
+.text-wishCell-finishData {
+  position: relative;
+}
+
+.img-wishCell-finish-icon {
+  position: absolute;
+  width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
+  left: 300rpx;
+}
+
+.img-wishCell-editor {
+  position: absolute;
+  width: 48rpx;
+  height: 48rpx;
+  right: 35rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
+}
+
+.view-wishCell-setBox {
+  position: absolute;
+  right: 35rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row;
+}
+
+.view-wishCell-setCell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.img-wishCell-finish {
+  width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
+}
+
+.img-wishCell-delete {
+  width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
+}
+
+.text-wishCell-setName {
+  color: #467B73;
+  font-size: 20rpx;
+}
+
+.img-addWish {
+  position: fixed;
+  width: 100rpx;
+  height: 100rpx;
+  right: 42rpx;
+  bottom: 70rpx;
+  flex-shrink: 0;
+}
+
+.view-mask-box {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  background-color: rgba(51, 51, 51, 0.5);
+  overflow: hidden;
+}
+
+.view-addWish-box {
+  position: fixed;
+  left: 45rpx;
+  right: 45rpx;
+  height: 280rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #FBF2E3;
+  border-radius: 30rpx;
+}
+
+.text-viewName {
+  position: absolute;
+  font-size: 30rpx;
+  color: #467B73;
+  left: 50%;
+  top: 10rpx;
+  transform: translateX(-50%);
+}
+
+.view-wish-content {
+  position: relative;
+  margin: 50rpx 35rpx 0 35rpx;
+  height: 80rpx;
+  border-bottom: 1rpx solid #467B73;
+  display: flex;
+  align-items: center;
+}
+
+.input-wish-content {
+  position: relative;
+  font-size: 30rpx;
+  width: 100%;
+  height: 60rpx;
+  color: #467B73;
+}
+
+.img-wish-update {
+  position: absolute;
+  width: 100rpx;
+  height: 100rpx;
+  right: 50rpx;
+  margin-top: 20rpx;
+  flex-shrink: 0;
+}
