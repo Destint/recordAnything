@@ -198,43 +198,6 @@ Page({
   },
 
   /**
-   * 向云端更新回忆列表
-   * @param {Array} memoryList 回忆列表
-   */
-  async updateMemoryListToCloud(memoryList) {
-    let that = this;
-    let p = new Promise(function (resolve, reject) {
-      wx.cloud.callFunction({
-          name: 'updateMemoryListByOpenId',
-          data: {
-            memoryList: memoryList
-          }
-        })
-        .then(async (res) => {
-          if (res.result && res.result.result) {
-            that.setData({
-              memoryList: memoryList,
-              memorySum: memoryList.length
-            })
-            wx.setStorageSync('memoryList', memoryList);
-            resolve(true);
-          } else {
-            that.setData({
-              memoryList: [],
-              memorySum: 0
-            })
-            resolve(false);
-          }
-        })
-        .catch(error => {
-          resolve(false);
-        })
-    });
-    let result = await p;
-    if (!result) that.showErrorTip();
-  },
-
-  /**
    * 从云端获取公告数据
    */
   getNoticeDataFromCloud() {
