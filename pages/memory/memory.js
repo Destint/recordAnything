@@ -1,7 +1,6 @@
 /**
- * Page: memory
- * Author: Trick
- * Date: 2022-01-17
+ * @file "回忆"页面
+ * @author Trick 2022-01-17
  */
 const app = getApp();
 const QQMapWX = require('../../utils/qqmap-wx-jssdk.js'); // 获取当前位置
@@ -14,7 +13,7 @@ Page({
   data: {
     showPopup: false, // 是否显示弹出窗口(true可以防止弹窗穿透)
     noticeData: wx.getStorageSync('noticeData') ? wx.getStorageSync('noticeData') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
-    memorySum: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList').length : 0, // 回忆总数
+    memorySum: wx.getStorageSync('memorySum') ? wx.getStorageSync('memorySum') : 0, // 回忆总数
     memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [], // 回忆列表
     showMemoryInfo: false, // 是否显示回忆信息
     memoryInfo: {}, // 详细的回忆信息
@@ -46,7 +45,7 @@ Page({
       title: '载入回忆中',
       mask: true
     })
-    await that.getMemoryListFromCloud();
+    await that.getMemoryListFromCloud(0);
     that.getNoticeDataFromCloud();
     wx.hideLoading();
   },
@@ -78,19 +77,31 @@ Page({
   onPullDownRefresh() {
     let that = this;
     that.getNoticeDataFromCloud();
+    that.getMemoryListFromCloud(0);
     wx.stopPullDownRefresh();
+  },
+
+  /**
+   * 触发上拉触底时执行
+   */
+  onReachBottom() {
+    let that = this;
+    let currentIndex = that.data.memoryList.length;
+
+    if (currentIndex === that.data.memorySum) return;
+    that.getMemoryListFromCloud(currentIndex);
   },
 
   /**
    * 点击回忆排序
    */
-  onClickMemorySort() {
-    let that = this;
-    let memoryList = that.data.memoryList;
-    that.setData({
-      memoryList: memoryList.reverse()
-    })
-  },
+  // onClickMemorySort() {
+  //   let that = this;
+  //   let memoryList = that.data.memoryList;
+  //   that.setData({
+  //     memoryList: memoryList.reverse()
+  //   })
+  // },
 
   /**
    * 点击回忆
@@ -138,22 +149,43 @@ Page({
 
   /**
    * 从云端获取回忆列表
+   * @param {Number} currentIndex 每次只获取索引值后20条数据
    */
-  async getMemoryListFromCloud() {
+  async getMemoryListFromCloud(currentIndex) {
     let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
-          name: 'getMemoryListByOpenId',
+          name: 'getMemoryList',
+          data: {
+            currentIndex: currentIndex
+          }
         })
-        .then(async (res) => {
+        .then(res => {
           if (res.result && res.result.result) {
-            await that.checkLocalPicPath(res.result.memoryList);
+            let partialMemoryList = res.result.partialMemoryList;
+            if (currentIndex === 0) {
+              let oldMemoryList = wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [];
+              if (JSON.stringify(partialMemoryList) === JSON.stringify(oldMemoryList)) {
+                that.setData({
+                  memorySum: res.result.memorySum
+                })
+              } else {
+                wx.setStorageSync('memoryList', partialMemoryList);
+                that.setData({
+                  memoryList: partialMemoryList,
+                  memorySum: res.result.memorySum
+                })
+              }
+              wx.setStorageSync('memorySum', res.result.memorySum);
+            } else {
+              let memoryList = that.data.memoryList;
+              memoryList = memoryList.concat(partialMemoryList);
+              that.setData({
+                memoryList: memoryList
+              })
+            }
             resolve(true);
           } else {
-            that.setData({
-              memoryList: res.result.memoryList,
-              memorySum: 0
-            })
             resolve(false);
           }
         })
@@ -163,63 +195,6 @@ Page({
     });
     let result = await p;
     if (!result) that.showErrorTip();
-  },
-
-  /**
-   * 检测本地图片路径是否存在
-   * @param {Array} memoryList 回忆列表
-   */
-  async checkLocalPicPath(memoryList) {
-    let that = this;
-    let bigProArr = []; // 大循环promise
-    let smallProArr = []; // 小循环promise
-    let updateState = false; // 是否向云端更新回忆
-    for (let i = 0; i < memoryList.length; i++) {
-      bigProArr[i] = new Promise(async function (resolve, reject) {
-        for (let j = 0; j < memoryList[i].cloudPicPathList.length; j++) {
-          smallProArr[j] = new Promise(async function (resolve, reject) {
-            if (memoryList[i].localPicPathList[j] == undefined) {
-              await wx.cloud.downloadFile({
-                  fileID: memoryList[i].cloudPicPathList[j]
-                })
-                .then(res => {
-                  memoryList[i].localPicPathList[j] = res.tempFilePath;
-                  updateState = true;
-                  resolve(true);
-                })
-                .catch(res => {
-                  resolve(true);
-                })
-            } else {
-              await wx.getImageInfo({
-                  src: memoryList[i].localPicPathList[j]
-                })
-                .then(res => {
-                  resolve(true);
-                })
-                .catch(async (res) => {
-                  await wx.cloud.downloadFile({
-                      fileID: memoryList[i].cloudPicPathList[j]
-                    })
-                    .then(res => {
-                      memoryList[i].localPicPathList[j] = res.tempFilePath;
-                      updateState = true;
-                      resolve(true);
-                    })
-                    .catch(res => {
-                      resolve(true);
-                    })
-                })
-            }
-          })
-        }
-        await Promise.all(smallProArr);
-        resolve(true)
-      })
-    }
-    await Promise.all(bigProArr).then(async (res) => {
-      if (updateState == true) await that.updateMemoryListToCloud(memoryList);
-    })
   },
 
   /**
@@ -303,8 +278,8 @@ Page({
     let that = this;
     let index = e.currentTarget.dataset.index;
     wx.previewImage({
-      current: that.data.memoryInfo.localPicPathList[index],
-      urls: that.data.memoryInfo.localPicPathList
+      current: that.data.memoryInfo.cloudPicPathList[index],
+      urls: that.data.memoryInfo.cloudPicPathList
     })
   },
 
@@ -505,7 +480,7 @@ Page({
   async startAddMemory() {
     let that = this;
     let localPicPathList = that.data.addMemory.localPicPathList;
-    if (localPicPathList[0] != undefined) await that.uploadLocalPicListToCloud();
+    if (localPicPathList.length !== 0) await that.uploadLocalPicListToCloud();
     await that.getCurrentAddressInfo();
     await that.getCurrentDate();
 
@@ -522,19 +497,23 @@ Page({
     let that = this;
     let proArr = []; // promise返回值数组
     let localPicPathList = that.data.addMemory.localPicPathList;
+    let currentInfo = await that.getOpenIdFromCloud();
     for (let i = 0; i < localPicPathList.length; i++) {
       proArr[i] = new Promise(async function (resolve, reject) {
-        let currentInfo = await that.getOpenIdFromCloud();
-        if (!currentInfo) resolve('');
-        wx.cloud.uploadFile({
-            cloudPath: currentInfo.openId + '/' + currentInfo.date + '.jpg', // 上传至云端的路径
-            filePath: localPicPathList[i], // 上传的临时文件路径
+        wx.compressImage({
+            src: localPicPathList[i]
           })
           .then(res => {
-            resolve(res.fileID);
-          })
-          .catch(error => {
-            resolve('');
+            wx.cloud.uploadFile({
+                cloudPath: currentInfo.openId + '/' + currentInfo.date + i + '.jpg', // 上传至云端的路径
+                filePath: res.tempFilePath, // 上传的临时文件路径
+              })
+              .then(res => {
+                resolve(res.fileID);
+              })
+              .catch(error => {
+                resolve('');
+              })
           })
       })
     }
@@ -543,10 +522,7 @@ Page({
       that.setData({
         [`${`addMemory.${'cloudPicPathList'}`}`]: res
       })
-    }).catch((err) => {
-      wx.hideLoading();
-      that.showErrorTip();
-    })
+    }).catch((err) => {})
   },
 
   /**
@@ -674,7 +650,7 @@ Page({
     let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
-          name: 'addMemoryByOpenId',
+          name: 'addMemory',
           data: {
             memory: memory
           }
@@ -683,9 +659,10 @@ Page({
           if (res.result && res.result.result) {
             that.setData({
               memoryList: res.result.memoryList,
-              memorySum: res.result.memoryList.length
+              memorySum: res.result.memorySum
             })
             wx.setStorageSync('memoryList', res.result.memoryList);
+            wx.setStorageSync('memorySum', res.result.memorySum);
             resolve(true);
           } else {
             resolve(false);
@@ -742,6 +719,7 @@ Page({
       success(res) {
         if (res.confirm) {
           let memoryList = that.data.memoryList;
+          let memorySum = that.data.memorySum;
           wx.showLoading({
             title: '删除中...',
             mask: true
@@ -752,13 +730,6 @@ Page({
           let deleteMemoryIndex = memoryList.findIndex(function (object) {
             return object.id == memoryId;
           })
-          if (deleteMemory.cloudPicPathList && deleteMemory.cloudPicPathList[0]) that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
-          memoryList.splice(deleteMemoryIndex, 1);
-          that.setData({
-            memoryList: memoryList,
-            memorySum: memoryList.length
-          })
-          wx.setStorageSync('memoryList', memoryList);
           wx.cloud.callFunction({
               name: 'deleteMemoryById',
               data: {
@@ -767,6 +738,15 @@ Page({
             })
             .then(res => {
               if (res.result && res.result.result) {
+                if (deleteMemory.cloudPicPathList && deleteMemory.cloudPicPathList[0]) that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
+                memoryList.splice(deleteMemoryIndex, 1);
+                memorySum = memorySum - 1;
+                that.setData({
+                  memoryList: memoryList,
+                  memorySum: memorySum
+                })
+                wx.setStorageSync('memoryList', memoryList.slice(0, 20));
+                wx.setStorageSync('memorySum', memorySum);
                 wx.hideLoading();
                 wx.showToast({
                   title: '删除成功',
@@ -818,7 +798,6 @@ Page({
    * 从云端获取用户openId
    */
   async getOpenIdFromCloud() {
-    let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
           name: 'getOpenId'
@@ -840,7 +819,7 @@ Page({
    */
   showErrorTip() {
     wx.showToast({
-      title: '网络异常请重启',
+      title: '网络异常请重试',
       icon: 'error',
       duration: 2000
     })

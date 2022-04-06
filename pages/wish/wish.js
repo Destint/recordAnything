@@ -1,7 +1,6 @@
 /**
- * Page: wish
- * Author: Trick
- * Date: 2022-03-09
+ * @file "心愿"页面
+ * @author Trick 2022-03-09
  */
 const app = getApp();
 Page({
@@ -121,13 +120,13 @@ Page({
   /**
    * 点击心愿排序
    */
-  onClickWishSort() {
-    let that = this;
-    let wishList = that.data.wishList;
-    that.setData({
-      wishList: wishList.reverse()
-    })
-  },
+  // onClickWishSort() {
+  //   let that = this;
+  //   let wishList = that.data.wishList;
+  //   that.setData({
+  //     wishList: wishList.reverse()
+  //   })
+  // },
 
   /**
    * 点击添加心愿
@@ -464,7 +463,7 @@ Page({
    */
   showErrorTip() {
     wx.showToast({
-      title: '网络异常请重启',
+      title: '网络异常请重试',
       icon: 'error',
       duration: 2000
     })

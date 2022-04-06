@@ -1,7 +1,6 @@
 /**
- * Page: mine
- * Author: Trick
- * Date: 2022-01-24
+ * @file "我的"页面
+ * @author Trick 2022-01-24
  */
 const app = getApp();
 Page({
@@ -776,7 +775,7 @@ Page({
    */
   showErrorTip() {
     wx.showToast({
-      title: '网络异常请重启',
+      title: '网络异常请重试',
       icon: 'error',
       duration: 2000
     })

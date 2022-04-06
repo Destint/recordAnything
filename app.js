@@ -1,7 +1,6 @@
 /**
- * APP: recordAnything
- * Author: Trick
- * Date: 2022-01-14 17:20
+ * @file 回忆录
+ * @author Trick 2022-01-14 17:20
  */
 App({
   onLaunch() {

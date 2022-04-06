@@ -108,7 +108,7 @@
     <view class="view-set-box">
       <text class="text-viewName">设置公告</text>
       <view class="view-set-content">
-        <input class="input-set-content" maxlength="20" placeholder="公告内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNoticeContent" />
+        <input class="input-set-content" maxlength="40" placeholder="公告内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNoticeContent" />
       </view>
       <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUpdateNotice"></image>
     </view>

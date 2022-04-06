@@ -14,7 +14,7 @@
     <!-- 全部回忆栏 -->
     <view class="view-wishSum-box">
       <text class="text-wishSum">全部心愿({{wishSum}})</text>
-      <image class="img-wishSort" src="../../images/img_sort.png" bindtap="onClickWishSort"></image>
+      <!-- <image class="img-wishSort" src="../../images/img_sort.png" bindtap="onClickWishSort"></image> -->
     </view>
   </view>
   <block wx:if="{{wishSum}}">

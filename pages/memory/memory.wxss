@@ -93,7 +93,7 @@ page {
   -webkit-box-orient: vertical;
 }
 
-.view-memoryCell-localPicPathList {
+.view-memoryCell-cloudPicPathList {
   position: relative;
   margin: 5rpx 130rpx 0 30rpx;
 }
