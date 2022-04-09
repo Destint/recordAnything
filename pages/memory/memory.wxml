@@ -4,17 +4,16 @@
 <view class="view-page-memory">
   <!-- 顶部信息栏 -->
   <view class="view-top-box">
-    <block wx:if="{{noticeData}}">
+    <block wx:if="{{notice}}">
       <!-- 公告栏 -->
       <view class="view-notice-box">
         <image class="img-notice" src="../../images/img_notice.png"></image>
-        <text class="text-notice">{{noticeData}}</text>
+        <text class="text-notice">{{notice}}</text>
       </view>
     </block>
     <!-- 全部回忆栏 -->
     <view class="view-memorySum-box">
       <text class="text-memorySum">全部回忆({{memorySum}})</text>
-      <!-- <image class="img-memorySort" src="../../images/img_sort.png" bindtap="onClickMemorySort"></image> -->
     </view>
   </view>
   <block wx:if="{{memorySum}}">
@@ -23,10 +22,10 @@
       <view class="view-memoryCell-box" bindtap="onClickMemory" data-data="{{item}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
         <text class="text-memoryCell-title">{{item.title}}</text>
         <text class="text-memoryCell-content">{{item.content}}</text>
-        <block wx:if="{{item.cloudPicPathList.length}}">
+        <block wx:if="{{item.localPicPathList.length}}">
           <!-- 回忆图片列表 -->
-          <view class="view-memoryCell-cloudPicPathList">
-            <block wx:for-items="{{item.cloudPicPathList}}" wx:key="index">
+          <view class="view-memoryCell-localPicPathList">
+            <block wx:for-items="{{item.localPicPathList}}" wx:key="index">
               <image class="img-memoryCell-picCell" src="{{item ? item : '../../images/img_miss.png'}}" style="margin-left:{{index == 0 ? '0' : '10rpx'}}">
               </image>
             </block>
@@ -58,10 +57,10 @@
         <image class="img-memoryInfo-Icon" src="../../images/img_title.png"></image>
         <text class="text-memoryInfo-content" style="font-weight: bold;">{{memoryInfo.title}}</text>
       </view>
-      <block wx:if="{{memoryInfo.cloudPicPathList.length}}">
+      <block wx:if="{{memoryInfo.localPicPathList.length}}">
         <!-- 回忆的图片栏 -->
         <view class="view-memoryPic-list">
-          <block wx:for-items="{{memoryInfo.cloudPicPathList}}" wx:key="index">
+          <block wx:for-items="{{memoryInfo.localPicPathList}}" wx:key="index">
             <image class="img-memoryPic" style="margin-left:{{index == 0 ? '0' : '10rpx'}}" src="{{item ? item : '../../images/img_miss.png'}}" data-index="{{index}}" catchtouchend="onPreviewPic"></image>
           </block>
         </view>

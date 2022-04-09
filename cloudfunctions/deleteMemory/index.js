@@ -1,9 +1,6 @@
 const cloud = require('wx-server-sdk');
-
 cloud.init();
-
 const db = cloud.database();
-const _ = db.command;
 
 exports.main = async (event, context) => {
   try {
@@ -12,17 +9,25 @@ exports.main = async (event, context) => {
       _openid: wxContext.OPENID
     }).get();
     let memoryList = memoryDoc.data[0].memoryList;
-    memoryList.unshift(event.memory);
+    let deleteMemoryIndex = memoryList.findIndex(function (object) {
+      return object.id == event.memoryId;
+    })
+
+    if (memoryList[deleteMemoryIndex].cloudPicPathList.length !== 0) {
+      await cloud.deleteFile({
+        fileList: memoryList[deleteMemoryIndex].cloudPicPathList
+      })
+    }
+    memoryList.splice(deleteMemoryIndex, 1);
     await db.collection('memory').where({
       _openid: wxContext.OPENID
     }).update({
       data: {
-        memoryList: _.unshift(event.memory)
+        memoryList: memoryList
       }
     })
     return {
-      result: true,
-      memoryList: memoryList
+      result: true
     }
   } catch (e) {
     return {

@@ -21,7 +21,7 @@ exports.main = async (event, context) => {
       }
     } else {
       let currentIndex = event.currentIndex ? event.currentIndex : 0;
-      let partialMemoryList = memoryDoc.data[0].memoryList.slice(currentIndex, currentIndex + 20); // 每次只传索引值后的20条数据
+      let partialMemoryList = memoryDoc.data[0].memoryList.slice(currentIndex, currentIndex + 15); // 每次只传索引值后的15条数据
 
       return {
         result: true,

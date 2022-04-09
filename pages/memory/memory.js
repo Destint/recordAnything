@@ -1,6 +1,6 @@
 /**
  * @file "回忆"页面
- * @author Trick 2022-01-17
+ * @author Trick 2022-04-09
  */
 const app = getApp();
 const QQMapWX = require('../../utils/qqmap-wx-jssdk.js'); // 获取当前位置
@@ -12,7 +12,7 @@ Page({
    */
   data: {
     showPopup: false, // 是否显示弹出窗口(true可以防止弹窗穿透)
-    noticeData: wx.getStorageSync('noticeData') ? wx.getStorageSync('noticeData') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
+    notice: wx.getStorageSync('notice') ? wx.getStorageSync('notice') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
     memorySum: wx.getStorageSync('memorySum') ? wx.getStorageSync('memorySum') : 0, // 回忆总数
     memoryList: wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [], // 回忆列表
     showMemoryInfo: false, // 是否显示回忆信息
@@ -31,6 +31,7 @@ Page({
   },
 
   recordMemoryState: false, // 记录回忆状态(防止两次点击记录回忆)
+  reachBottomState: false, // 上拉触底状态(防止多次上拉)
 
   /**
    * 页面创建时执行
@@ -45,9 +46,9 @@ Page({
       title: '载入回忆中',
       mask: true
     })
-    await that.getMemoryListFromCloud(0);
-    that.getNoticeDataFromCloud();
+    await that.getMemoryList(0);
     wx.hideLoading();
+    that.getNotice();
   },
 
   /**
@@ -74,84 +75,31 @@ Page({
   /**
    * 触发下拉刷新时执行
    */
-  onPullDownRefresh() {
+  async onPullDownRefresh() {
     let that = this;
-    that.getNoticeDataFromCloud();
-    that.getMemoryListFromCloud(0);
+    that.getNotice();
+    await that.getMemoryList(0);
     wx.stopPullDownRefresh();
   },
 
   /**
    * 触发上拉触底时执行
    */
-  onReachBottom() {
+  async onReachBottom() {
     let that = this;
     let currentIndex = that.data.memoryList.length;
 
-    if (currentIndex === that.data.memorySum) return;
-    that.getMemoryListFromCloud(currentIndex);
-  },
-
-  /**
-   * 点击回忆排序
-   */
-  // onClickMemorySort() {
-  //   let that = this;
-  //   let memoryList = that.data.memoryList;
-  //   that.setData({
-  //     memoryList: memoryList.reverse()
-  //   })
-  // },
-
-  /**
-   * 点击回忆
-   * @param {Object} e 点击事件的对象
-   */
-  onClickMemory(e) {
-    let that = this;
-    let memoryInfo = e.currentTarget.dataset.data; // 点击的回忆数据
-    that.setData({
-      showMemoryInfo: true,
-      showPopup: true,
-      memoryInfo: memoryInfo
-    })
-  },
-
-  /**
-   * 点击添加回忆
-   */
-  onClickAddMemory() {
-    let that = this;
-    that.setData({
-      showPopup: true,
-      showAddMemory: true
-    })
-  },
-
-  /**
-   * 点击编辑回忆
-   * @param {Object} e 点击事件的对象
-   */
-  onClickEditorMemory(e) {
-    let that = this;
-    let memoryId = e.currentTarget.dataset.id; // 点击的回忆id
-    let memoryTitle = e.currentTarget.dataset.title; // 点击的回忆标题
-    wx.showActionSheet({
-      itemList: ['删除该回忆'],
-      success(res) {
-        if (res.tapIndex == 0) that.deleteMemoryById(memoryId, memoryTitle);
-      },
-      fail(res) {
-        // 点取消或空白处
-      }
-    })
+    if (currentIndex === that.data.memorySum || that.reachBottomState) return;
+    that.reachBottomState = true;
+    await that.getMemoryList(currentIndex);
+    that.reachBottomState = false;
   },
 
   /**
    * 从云端获取回忆列表
-   * @param {Number} currentIndex 每次只获取索引值后20条数据
+   * @param {Number} currentIndex 每次只获取索引值后(云函数中配置)条数据
    */
-  async getMemoryListFromCloud(currentIndex) {
+  async getMemoryList(currentIndex) {
     let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
@@ -160,22 +108,15 @@ Page({
             currentIndex: currentIndex
           }
         })
-        .then(res => {
+        .then(async res => {
           if (res.result && res.result.result) {
-            let partialMemoryList = res.result.partialMemoryList;
+            let partialMemoryList = await that.downloadCloudPicToLocal(res.result.partialMemoryList);
             if (currentIndex === 0) {
-              let oldMemoryList = wx.getStorageSync('memoryList') ? wx.getStorageSync('memoryList') : [];
-              if (JSON.stringify(partialMemoryList) === JSON.stringify(oldMemoryList)) {
-                that.setData({
-                  memorySum: res.result.memorySum
-                })
-              } else {
-                wx.setStorageSync('memoryList', partialMemoryList);
-                that.setData({
-                  memoryList: partialMemoryList,
-                  memorySum: res.result.memorySum
-                })
-              }
+              that.setData({
+                memoryList: partialMemoryList,
+                memorySum: res.result.memorySum
+              })
+              wx.setStorageSync('memoryList', partialMemoryList);
               wx.setStorageSync('memorySum', res.result.memorySum);
             } else {
               let memoryList = that.data.memoryList;
@@ -198,26 +139,115 @@ Page({
   },
 
   /**
-   * 从云端获取公告数据
+   * 下载云图片到本地(减少云存储的消耗)
+   * @param {Array} memoryList 回忆列表
+   * @return {Array} 处理后的回忆列表
    */
-  getNoticeDataFromCloud() {
+  async downloadCloudPicToLocal(memoryList) {
     let that = this;
-    const db = wx.cloud.database();
-    const notice = db.collection('notice');
-    notice.where({
-        _id: '8937eaa9613daffc0aa0e12b080c9859'
-      })
-      .get({
-        success(res) {
-          if (res.data[0] && res.data[0].noticeData && res.data[0].noticeData[0]) {
-            let noticeData = res.data[0].noticeData[0].notice;
-            that.setData({
-              noticeData: noticeData
-            })
-            wx.setStorageSync('noticeData', noticeData);
+    let proArr = []; // promise返回值数组
+    if (memoryList.length === 0) return memoryList;
+    let picPath = wx.getStorageSync('picPath');
+    picPath = picPath ? JSON.parse(picPath) : {};
+    for (let i = 0; i < memoryList.length; i++) {
+      let cloudPicPathList = memoryList[i].cloudPicPathList;
+      if (cloudPicPathList.length === 0) continue;
+      for (let j = 0; j < cloudPicPathList.length; j++) {
+        proArr.push(new Promise(async function (resolve, reject) {
+          if (!cloudPicPathList[j]) {
+            memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
+            resolve(true);
           }
+          let cloudPicName = cloudPicPathList[j].slice(cloudPicPathList[j].lastIndexOf("/") + 1);
+          if (picPath[cloudPicName]) {
+            await wx.getImageInfo({
+                src: picPath[cloudPicName]
+              })
+              .then(res => {
+                memoryList[i].localPicPathList[j] = picPath[cloudPicName];
+                resolve(true);
+              })
+              .catch(async (res) => {
+                await wx.cloud.downloadFile({
+                    fileID: cloudPicPathList[j]
+                  })
+                  .then(res => {
+                    memoryList[i].localPicPathList[j] = res.tempFilePath;
+                    picPath[cloudPicName] = res.tempFilePath;
+                    resolve(true);
+                  })
+                  .catch(res => {
+                    memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
+                    resolve(true);
+                  })
+              })
+          } else {
+            await wx.cloud.downloadFile({
+                fileID: cloudPicPathList[j]
+              })
+              .then(res => {
+                memoryList[i].localPicPathList[j] = res.tempFilePath;
+                picPath[cloudPicName] = res.tempFilePath;
+                resolve(true);
+              })
+              .catch(res => {
+                memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
+                resolve(true);
+              })
+          }
+        }))
+      }
+    }
+    await Promise.all(proArr).then(res => {
+      wx.setStorageSync('picPath', JSON.stringify(picPath));
+    }).catch(err => {})
+    return memoryList;
+  },
+
+  /**
+   * 获取公告
+   */
+  getNotice() {
+    let that = this;
+    wx.cloud.callFunction({
+        name: 'getNotice'
+      })
+      .then(res => {
+        if (res.result && res.result.result) {
+          that.setData({
+            notice: res.result.notice
+          })
+          wx.setStorageSync('notice', res.result.notice);
         }
       })
+      .catch(error => {})
+  },
+
+  /**
+   * 点击回忆
+   * @param {Object} e 点击事件的对象
+   */
+  onClickMemory(e) {
+    let that = this;
+    let memoryInfo = e.currentTarget.dataset.data; // 点击的回忆数据
+    that.setData({
+      showMemoryInfo: true,
+      showPopup: true,
+      memoryInfo: memoryInfo
+    })
+  },
+
+  /**
+   * 预览回忆图片
+   * @param {Object} e 当前点击的对象
+   */
+  onPreviewPic(e) {
+    let that = this;
+    let index = e.currentTarget.dataset.index;
+    wx.previewImage({
+      current: that.data.memoryInfo.localPicPathList[index],
+      urls: that.data.memoryInfo.localPicPathList
+    })
   },
 
   /**
@@ -234,16 +264,127 @@ Page({
   },
 
   /**
-   * 预览回忆图片
-   * @param {Object} e 当前点击的对象
+   * 点击编辑回忆
+   * @param {Object} e 点击事件的对象
    */
-  onPreviewPic(e) {
+  onClickEditorMemory(e) {
     let that = this;
-    let index = e.currentTarget.dataset.index;
-    wx.previewImage({
-      current: that.data.memoryInfo.cloudPicPathList[index],
-      urls: that.data.memoryInfo.cloudPicPathList
+    let memoryId = e.currentTarget.dataset.id; // 点击的回忆id
+    let memoryTitle = e.currentTarget.dataset.title; // 点击的回忆标题
+    wx.showActionSheet({
+      itemList: ['删除该回忆'],
+      success(res) {
+        if (res.tapIndex == 0) that.deleteMemory(memoryId, memoryTitle);
+      },
+      fail(res) {
+        // 点取消或空白处
+      }
     })
+  },
+
+  /**
+   * 删除回忆
+   * @param {Number} memoryId 回忆Id
+   * @param {String} memoryTitle 回忆标题
+   */
+  deleteMemory(memoryId, memoryTitle) {
+    let that = this;
+    wx.showModal({
+      title: '温馨提示',
+      content: '是否删除《' + memoryTitle + '》这篇回忆',
+      cancelText: '取消',
+      confirmText: '确定',
+      success(res) {
+        if (res.confirm) {
+          wx.showLoading({
+            title: '删除中...',
+            mask: true
+          })
+          wx.cloud.callFunction({
+              name: 'deleteMemory',
+              data: {
+                memoryId: memoryId
+              },
+            })
+            .then(res => {
+              if (res.result && res.result.result) {
+                let memoryList = that.data.memoryList;
+                let memorySum = that.data.memorySum;
+                let deleteMemory = memoryList.find(function (object) {
+                  return object.id == memoryId;
+                })
+                let deleteMemoryIndex = memoryList.findIndex(function (object) {
+                  return object.id == memoryId;
+                })
+                let cloudPicPathList = deleteMemory.cloudPicPathList;
+                let picPath = wx.getStorageSync('picPath');
+                picPath = picPath ? JSON.parse(picPath) : {};
+                for (let i = 0; i < cloudPicPathList.length; i++) {
+                  let cloudPicName = cloudPicPathList[i].slice(cloudPicPathList[i].lastIndexOf("/") + 1);
+                  delete picPath[cloudPicName];
+                }
+                wx.setStorageSync('picPath', JSON.stringify(picPath));
+                memoryList.splice(deleteMemoryIndex, 1);
+                memorySum = memorySum - 1;
+                that.setData({
+                  memoryList: memoryList,
+                  memorySum: memorySum
+                })
+                wx.setStorageSync('memoryList', memoryList.slice(0, 15));
+                wx.setStorageSync('memorySum', memorySum);
+                wx.hideLoading();
+                wx.showToast({
+                  title: '删除成功',
+                  icon: 'none',
+                  duration: 1500
+                })
+              } else {
+                wx.hideLoading();
+                that.showErrorTip();
+              }
+            })
+            .catch(error => {
+              wx.hideLoading();
+              that.showErrorTip();
+            })
+        }
+      }
+    })
+  },
+
+  /**
+   * 点击添加回忆
+   */
+  onClickAddMemory() {
+    let that = this;
+    that.setData({
+      showPopup: true,
+      showAddMemory: true
+    })
+  },
+
+  /**
+   * 点击返回回忆页
+   */
+  onClickBackMemory() {
+    let that = this;
+    wx.showModal({
+        title: '温馨提示',
+        content: '返回会清空当前所记回忆',
+        cancelText: '取消',
+        confirmText: '确定'
+      })
+      .then(res => {
+        if (res.confirm) {
+          that.setData({
+            showPopup: false,
+            showAddMemory: false,
+            [`${`addMemory.${'title'}`}`]: '',
+            [`${`addMemory.${'localPicPathList'}`}`]: [],
+            [`${`addMemory.${'content'}`}`]: ''
+          })
+        }
+      })
   },
 
   /**
@@ -358,7 +499,7 @@ Page({
             mask: true
           })
           that.recordMemoryState = false;
-          if (!await that.checkMsgSecFromCloud(memoryTitle)) {
+          if (!await that.checkMsgSec(memoryTitle)) {
             wx.hideLoading();
             wx.showModal({
               showCancel: false,
@@ -368,7 +509,7 @@ Page({
             })
             return;
           }
-          if (memoryContent && !await that.checkMsgSecFromCloud(memoryContent)) {
+          if (memoryContent && !await that.checkMsgSec(memoryContent)) {
             wx.hideLoading();
             wx.showModal({
               showCancel: false,
@@ -386,10 +527,10 @@ Page({
   },
 
   /**
-   * 从云端检测内容是否合规
+   * 检测内容是否合规
    * @param {String} context 检测的内容
    */
-  async checkMsgSecFromCloud(context) {
+  async checkMsgSec(context) {
     let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
@@ -414,53 +555,30 @@ Page({
   },
 
   /**
-   * 点击返回回忆页
-   */
-  onClickBackMemory() {
-    let that = this;
-    wx.showModal({
-        title: '温馨提示',
-        content: '返回会清空当前所记回忆',
-        cancelText: '取消',
-        confirmText: '确定'
-      })
-      .then(res => {
-        if (res.confirm) {
-          that.setData({
-            showPopup: false,
-            showAddMemory: false,
-            [`${`addMemory.${'title'}`}`]: '',
-            [`${`addMemory.${'localPicPathList'}`}`]: [],
-            [`${`addMemory.${'content'}`}`]: ''
-          })
-        }
-      })
-  },
-
-  /**
    * 开始添加回忆
    */
   async startAddMemory() {
     let that = this;
     let localPicPathList = that.data.addMemory.localPicPathList;
-    if (localPicPathList.length !== 0) await that.uploadLocalPicListToCloud();
+    if (localPicPathList.length !== 0) await that.uploadLocalPicList();
     await that.getCurrentAddressInfo();
     await that.getCurrentDate();
 
     let addMemory = that.data.addMemory;
 
-    await that.addMemoryToCloud(addMemory);
+    await that.uploadMemory(addMemory);
     that.finishAddMemory();
   },
 
   /**
-   * 上传本地图片列表到云端
+   * 上传本地图片列表
    */
-  async uploadLocalPicListToCloud() {
+  async uploadLocalPicList() {
     let that = this;
     let proArr = []; // promise返回值数组
     let localPicPathList = that.data.addMemory.localPicPathList;
-    let currentInfo = await that.getOpenIdFromCloud();
+    let cloudPicPathList = [];
+    let currentInfo = await that.getOpenId();
     for (let i = 0; i < localPicPathList.length; i++) {
       proArr[i] = new Promise(async function (resolve, reject) {
         wx.compressImage({
@@ -472,10 +590,12 @@ Page({
                 filePath: res.tempFilePath, // 上传的临时文件路径
               })
               .then(res => {
-                resolve(res.fileID);
+                cloudPicPathList[i] = res.fileID;
+                resolve(true);
               })
               .catch(error => {
-                resolve('');
+                cloudPicPathList[i] = "";
+                resolve(true);
               })
           })
       })
@@ -483,7 +603,7 @@ Page({
     await Promise.all(proArr).then((res) => {
       //全都图片都上传成功后
       that.setData({
-        [`${`addMemory.${'cloudPicPathList'}`}`]: res
+        [`${`addMemory.${'cloudPicPathList'}`}`]: cloudPicPathList
       })
     }).catch((err) => {})
   },
@@ -606,25 +726,26 @@ Page({
   },
 
   /**
-   * 向云端添加回忆
-   * @param {Object} memory 添加的回忆
+   * 上传回忆
+   * @param {Object} memory 回忆
    */
-  async addMemoryToCloud(memory) {
+  async uploadMemory(memory) {
     let that = this;
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
-          name: 'addMemory',
+          name: 'uploadMemory',
           data: {
             memory: memory
           }
         })
-        .then(res => {
+        .then(async (res) => {
           if (res.result && res.result.result) {
+            let partialMemoryList = await that.downloadCloudPicToLocal(res.result.partialMemoryList);
             that.setData({
-              memoryList: res.result.memoryList,
+              memoryList: partialMemoryList,
               memorySum: res.result.memorySum
             })
-            wx.setStorageSync('memoryList', res.result.memoryList);
+            wx.setStorageSync('memoryList', partialMemoryList);
             wx.setStorageSync('memorySum', res.result.memorySum);
             resolve(true);
           } else {
@@ -668,99 +789,9 @@ Page({
   },
 
   /**
-   * 通过回忆Id删除该回忆
-   * @param {String} memoryId 回忆Id
-   * @param {String} memoryTitle 回忆标题
+   * 获取用户openId
    */
-  deleteMemoryById(memoryId, memoryTitle) {
-    let that = this;
-    wx.showModal({
-      title: '温馨提示',
-      content: '是否删除《' + memoryTitle + '》这篇回忆',
-      cancelText: '取消',
-      confirmText: '确定',
-      success(res) {
-        if (res.confirm) {
-          let memoryList = that.data.memoryList;
-          let memorySum = that.data.memorySum;
-          wx.showLoading({
-            title: '删除中...',
-            mask: true
-          })
-          let deleteMemory = memoryList.find(function (object) {
-            return object.id == memoryId;
-          })
-          let deleteMemoryIndex = memoryList.findIndex(function (object) {
-            return object.id == memoryId;
-          })
-          wx.cloud.callFunction({
-              name: 'deleteMemoryById',
-              data: {
-                memoryId: memoryId
-              },
-            })
-            .then(res => {
-              if (res.result && res.result.result) {
-                if (deleteMemory.cloudPicPathList && deleteMemory.cloudPicPathList[0]) that.deletePicListFromCloud(deleteMemory.cloudPicPathList);
-                memoryList.splice(deleteMemoryIndex, 1);
-                memorySum = memorySum - 1;
-                that.setData({
-                  memoryList: memoryList,
-                  memorySum: memorySum
-                })
-                wx.setStorageSync('memoryList', memoryList.slice(0, 20));
-                wx.setStorageSync('memorySum', memorySum);
-                wx.hideLoading();
-                wx.showToast({
-                  title: '删除成功',
-                  icon: 'none',
-                  duration: 1500
-                })
-              } else {
-                wx.hideLoading();
-                that.showErrorTip();
-              }
-            })
-            .catch(error => {
-              wx.hideLoading();
-              that.showErrorTip();
-            })
-        }
-      }
-    })
-  },
-
-  /**
-   * 从云端删除云存储图片列表
-   * @param {Array} cloudPicPathList 云存储图片列表
-   */
-  async deletePicListFromCloud(cloudPicPathList) {
-    let p = new Promise(function (resolve, reject) {
-      wx.cloud.callFunction({
-          name: 'deletePicListFromCloud',
-          data: {
-            cloudPicPathList: cloudPicPathList
-          },
-        })
-        .then(res => {
-          if (res.result && res.result.result) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        })
-        .catch(error => {
-          resolve(false);
-        })
-    });
-
-    await p;
-  },
-
-  /**
-   * 从云端获取用户openId
-   */
-  async getOpenIdFromCloud() {
+  async getOpenId() {
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
           name: 'getOpenId'

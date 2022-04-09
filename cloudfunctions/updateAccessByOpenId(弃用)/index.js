@@ -28,11 +28,11 @@ exports.main = async (event, context) => {
     }).get();
     let currentDate = formatTime(new Date());
     if (!accessDoc.data[0]) {
-      let accessData = [];
-      accessData.unshift(currentDate);
+      let accessList = [];
+      accessList.unshift(currentDate);
       await db.collection('access').add({
         data: {
-          accessData: accessData,
+          accessList: accessList,
           _openid: wxContext.OPENID
         }
       });
@@ -41,7 +41,7 @@ exports.main = async (event, context) => {
         _openid: wxContext.OPENID
       }).update({
         data: {
-          accessData: _.unshift(currentDate)
+          accessList: _.unshift(currentDate)
         }
       })
     }

@@ -50,14 +50,6 @@ page {
   font-size: 30rpx;
 }
 
-.img-memorySort {
-  position: relative;
-  width: 50rpx;
-  height: 50rpx;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
 .view-memoryCell-box {
   position: relative;
   background-color: #FEFFFF;
@@ -93,7 +85,7 @@ page {
   -webkit-box-orient: vertical;
 }
 
-.view-memoryCell-cloudPicPathList {
+.view-memoryCell-localPicPathList {
   position: relative;
   margin: 5rpx 130rpx 0 30rpx;
 }

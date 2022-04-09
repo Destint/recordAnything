@@ -1,6 +1,6 @@
 /**
  * @file 回忆录
- * @author Trick 2022-01-14 17:20
+ * @author Trick 2022-04-07
  */
 App({
   onLaunch() {
@@ -10,14 +10,14 @@ App({
       env: 'zxj-8gnakc5c52888d77',
       traceUser: true
     })
-    that.checkVersionUpdate();
-    that.updateAccessToCloud();
+    that.checkVersion();
+    that.uploadAccess();
   },
 
   /**
-   * 检测小程序版本更新
+   * 检查版本
    */
-  checkVersionUpdate() {
+  checkVersion() {
     if (wx.canIUse('getUpdateManager')) {
       const updateManager = wx.getUpdateManager();
       updateManager.onCheckForUpdate(function (res) {
@@ -31,11 +31,11 @@ App({
   },
 
   /**
-   * 更新用户访问记录到云端
+   * 上传访问记录
    */
-  updateAccessToCloud() {
+  uploadAccess() {
     wx.cloud.callFunction({
-        name: 'updateAccessByOpenId',
+        name: 'uploadAccess',
       })
       .then(res => {})
       .catch(error => {})
