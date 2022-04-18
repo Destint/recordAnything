@@ -66,7 +66,7 @@ Page({
    */
   onShareAppMessage() {
     return {
-      title: '回忆录-所记往事皆为回忆',
+      title: '记你所记 想你所想',
       path: '/pages/memory/memory',
       imageUrl: '/images/img_logo.png'
     };
