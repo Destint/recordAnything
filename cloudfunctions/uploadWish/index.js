@@ -6,22 +6,22 @@ const _ = db.command;
 exports.main = async (event, context) => {
   try {
     const wxContext = cloud.getWXContext();
-    let memoryDoc = await db.collection('memory').where({
+    let wishDoc = await db.collection('wish').where({
       _openid: wxContext.OPENID
     }).get();
-    let memoryList = memoryDoc.data[0].memoryList;
-    memoryList.unshift(event.memory);
-    await db.collection('memory').where({
+    let wishList = wishDoc.data[0].wishList;
+    wishList.unshift(event.wish);
+    await db.collection('wish').where({
       _openid: wxContext.OPENID
     }).update({
       data: {
-        memoryList: _.unshift(event.memory)
+        wishList: _.unshift(event.wish)
       }
     })
     return {
       result: true,
-      memorySum: memoryList.length,
-      memoryList: memoryList.slice(0, 20)
+      wishSum: wishList.length,
+      partialWishList: wishList.slice(0, 15)
     }
   } catch (e) {
     return {

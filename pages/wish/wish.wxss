@@ -50,14 +50,6 @@ page {
   font-size: 30rpx;
 }
 
-.img-wishSort {
-  position: relative;
-  width: 50rpx;
-  height: 50rpx;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
 .img-empty {
   position: absolute;
   width: 128rpx;

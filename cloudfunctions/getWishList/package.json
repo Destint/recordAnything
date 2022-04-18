@@ -1,13 +1,13 @@
 {
-  "name": "addMemory",
+  "name": "getWishList",
   "version": "1.0.0",
-  "description": "Add memory.",
+  "description": "Get wishList.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Trick",
-  "date": "2022-04-06 09:05:00",
+  "date": "2022-04-18 10:02:00",
   "license": "ISC",
   "dependencies": {
     "wx-server-sdk": "~2.6.1"

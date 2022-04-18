@@ -4,17 +4,16 @@
 <view class="view-page-mine">
   <!-- 顶部栏 -->
   <view class="view-top-box">
-    <block wx:if="{{noticeData}}">
+    <block wx:if="{{notice}}">
       <!-- 公告栏 -->
       <view class="view-notice-box">
         <image class="img-notice" src="../../images/img_notice.png"></image>
-        <text class="text-notice">{{noticeData}}</text>
+        <text class="text-notice">{{notice}}</text>
       </view>
     </block>
     <!-- 全部回忆栏 -->
     <view class="view-wishSum-box">
       <text class="text-wishSum">全部心愿({{wishSum}})</text>
-      <!-- <image class="img-wishSort" src="../../images/img_sort.png" bindtap="onClickWishSort"></image> -->
     </view>
   </view>
   <block wx:if="{{wishSum}}">

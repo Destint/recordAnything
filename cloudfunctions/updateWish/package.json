@@ -1,15 +1,15 @@
 {
-  "name": "deletePicListInCloud",
+  "name": "updateWish",
   "version": "1.0.0",
-  "description": "Delete the image list from the cloud.",
+  "description": "Update wish.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Trick",
-  "date": "2022-01-21 17:28:00",
+  "date": "2022-04-18 10:56:00",
   "license": "ISC",
   "dependencies": {
-    "wx-server-sdk": "~2.5.3"
+    "wx-server-sdk": "~2.6.1"
   }
 }

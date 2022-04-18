@@ -1,15 +1,15 @@
 {
-  "name": "updateAccessByOpenId",
+  "name": "uploadWish",
   "version": "1.0.0",
-  "description": "Update access record.",
+  "description": "Upload wish.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Trick",
-  "date": "2022-01-24 09:25:00",
+  "date": "2022-04-18 10:28:00",
   "license": "ISC",
   "dependencies": {
-    "wx-server-sdk": "~2.5.3"
+    "wx-server-sdk": "~2.6.1"
   }
 }
