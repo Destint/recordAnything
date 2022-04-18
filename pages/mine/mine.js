@@ -1,6 +1,6 @@
 /**
  * @file "我的"页面
- * @author Trick 2022-01-24
+ * @author Trick 2022-04-18
  */
 const app = getApp();
 Page({

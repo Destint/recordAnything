@@ -70,7 +70,6 @@ Page({
   async onReachBottom() {
     let that = this;
     let currentIndex = that.data.wishList.length;
-
     if (currentIndex === that.data.wishSum || that.reachBottomState) return;
     that.reachBottomState = true;
     await that.getWishList(currentIndex);
@@ -105,6 +104,9 @@ Page({
     let p = new Promise(function (resolve, reject) {
       wx.cloud.callFunction({
           name: 'getWishList',
+          data: {
+            currentIndex: currentIndex
+          }
         })
         .then(res => {
           if (res.result && res.result.result) {
@@ -373,25 +375,16 @@ Page({
           name: 'updateWish',
           data: {
             wishId: wishId,
-            type: wishState
+            wishState: wishState
           }
         })
         .then(res => {
           if (res.result && res.result.result) {
-            let wishList = that.data.wishList;
-            let updateWishIndex = wishList.findIndex(function (object) {
-              return object.id == wishId;
-            })
-            if (wishState !== 2) {
-              wishList[updateWishIndex] = res.result.updateWish;
-            } else {
-              wishList.splice(updateWishIndex, 1);
-            }
             that.setData({
-              wishList: wishList,
+              wishList: res.result.partialWishList,
               wishSum: res.result.wishSum
             })
-            wx.setStorageSync('wishList', wishList.slice(0, 15));
+            wx.setStorageSync('wishList', res.result.partialWishList);
             wx.setStorageSync('wishSum', res.result.wishSum);
             resolve(true);
           } else {

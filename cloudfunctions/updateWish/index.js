@@ -64,7 +64,7 @@ exports.main = async (event, context) => {
     })
     return {
       result: true,
-      updateWish: updateWish,
+      partialWishList: wishList.slice(0, 15),
       wishSum: wishList.length
     }
   } catch (e) {

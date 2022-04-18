@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/memory/memory",
     "pages/wish/wish",
+    "pages/memory/memory",
     "pages/mine/mine"
   ],
   "window": {
