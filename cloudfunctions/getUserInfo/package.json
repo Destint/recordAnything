@@ -1,0 +1,15 @@
+{
+  "name": "getUserInfo",
+  "version": "1.0.0",
+  "description": "Get user info.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trick",
+  "date": "2022-04-18 16:40:00",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.1"
+  }
+}

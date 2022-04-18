@@ -4,18 +4,8 @@
 <view class="view-page-mine">
   <!-- 顶部栏 -->
   <view class="view-top-box">
-    <block wx:if="{{userAvatar != ''}}">
-      <image class="img-user-avatar" src="{{userAvatar}}"></image>
-    </block>
-    <block wx:else>
-      <open-data class="img-user-avatar" type="userAvatarUrl"></open-data>
-    </block>
-    <block wx:if="{{userNickname != ''}}">
-      <text class="text-user-nickName">{{userNickname}}</text>
-    </block>
-    <block wx:else>
-      <open-data class="text-user-nickName" type="userNickName"></open-data>
-    </block>
+    <image class="img-user-avatar" src="{{avatar}}"></image>
+    <text class="text-user-nickName">{{nickname}}</text>
   </view>
   <!-- 功能栏 -->
   <view class="view-function-box">
@@ -41,7 +31,7 @@
       <text class="text-function">设置昵称</text>
     </view>
     <!-- 设置公告 -->
-    <block wx:if="{{showSetNotice}}">
+    <block wx:if="{{hasManagePermission}}">
       <view class="view-function" bindtap="onClickSetNotice" style="border-top: 1rpx solid #E4E4E4;">
         <image class="img-function-notice" src="../../images/img_notice_1.png"></image>
         <text class="text-function">设置公告</text>
@@ -50,13 +40,13 @@
     <!-- 分享小程序 -->
     <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
       <image class="img-function" src="../../images/img_share.png"></image>
-      <text class="text-function">分享回忆录</text>
+      <text class="text-function">分享小程序</text>
       <button class="btn-function" open-type="share"></button>
     </view>
     <!-- 关于小程序 -->
     <view class="view-function" bindtap="onClickAbout" style="border-top: 1rpx solid #E4E4E4;">
       <image class="img-function" src="../../images/img_about.png"></image>
-      <text class="text-function">关于回忆录</text>
+      <text class="text-function">关于小程序</text>
     </view>
   </view>
   <block wx:if="{{showFeedback}}">
@@ -96,7 +86,7 @@
     <!-- 关于回忆录的蒙版 -->
     <view class="view-mask-box" bindtap="onClickAboutSelfMask"></view>
     <view class="view-aboutSelf-box">
-      <text class="text-viewName">关于回忆录</text>
+      <text class="text-viewName">关于小程序</text>
       <text class="text-aboutSelf">{{aboutSelfContent}}</text>
       <image class="img-praise" src="{{praiseState ? '../../images/img_praise.png' : '../../images/img_no_praise.png'}}" bindtap="onClickPraise"></image>
       <text class="text-praiseSum">{{praiseSum}}</text>
@@ -110,7 +100,7 @@
       <view class="view-set-content">
         <input class="input-set-content" maxlength="40" placeholder="公告内容..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNoticeContent" />
       </view>
-      <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUpdateNotice"></image>
+      <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUploadNotice"></image>
     </view>
   </block>
   <block wx:if="{{showSetNicknameView}}">
@@ -121,7 +111,7 @@
       <view class="view-set-content">
         <input class="input-set-content" maxlength="10" placeholder="请输入昵称..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNicknameContent" />
       </view>
-      <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUpdateNickname"></image>
+      <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUploadNickname"></image>
     </view>
   </block>
 </view>

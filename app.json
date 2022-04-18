@@ -1,8 +1,8 @@
 {
   "pages": [
+    "pages/mine/mine",
     "pages/wish/wish",
-    "pages/memory/memory",
-    "pages/mine/mine"
+    "pages/memory/memory"
   ],
   "window": {
     "backgroundTextStyle": "dark",

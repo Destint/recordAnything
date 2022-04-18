@@ -1,0 +1,15 @@
+{
+  "name": "uploadFeedback",
+  "version": "1.0.0",
+  "description": "Upload feedback.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Trick",
+  "date": "2022-04-18 14:59:00",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.1"
+  }
+}
