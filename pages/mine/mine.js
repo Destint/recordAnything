@@ -663,6 +663,7 @@ Page({
    * 上传点赞
    */
   uploadPraise() {
+    let that = this;
     wx.cloud.callFunction({
         name: 'uploadPraise',
       })
