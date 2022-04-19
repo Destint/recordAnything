@@ -26,6 +26,7 @@
           <text class="text-wishCell-finishData">{{item.finishDate}}</text>
           <block wx:if="{{item.state}}">
             <image class="img-wishCell-finish-icon" src="../../images/img_wish_finish_icon.png"></image>
+            <text class="text-wishCell-duration">{{item.duration}}</text>
           </block>
         </view>
         <block wx:if="{{!item.set}}">

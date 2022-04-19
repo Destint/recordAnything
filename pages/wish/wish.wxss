@@ -135,6 +135,13 @@ page {
   left: 300rpx;
 }
 
+.text-wishCell-duration {
+  position: absolute;
+  font-size: 20rpx;
+  left: 355rpx;
+  color: #467B73;
+}
+
 .img-wishCell-editor {
   position: absolute;
   width: 48rpx;

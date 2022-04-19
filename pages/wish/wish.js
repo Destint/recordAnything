@@ -110,16 +110,17 @@ Page({
         })
         .then(res => {
           if (res.result && res.result.result) {
+            let partialWishList = that.getWishDuration(res.result.partialWishList);
             if (currentIndex === 0) {
               that.setData({
                 wishSum: res.result.wishSum,
-                wishList: res.result.partialWishList
+                wishList: partialWishList
               })
               wx.setStorageSync('wishSum', res.result.wishSum);
-              wx.setStorageSync('wishList', res.result.partialWishList);
+              wx.setStorageSync('wishList', partialWishList);
             } else {
               let wishList = that.data.wishList;
-              wishList = wishList.concat(res.result.partialWishList);
+              wishList = wishList.concat(partialWishList);
               that.setData({
                 wishList: wishList
               })
@@ -135,6 +136,33 @@ Page({
     });
     let result = await p;
     if (!result) that.showErrorTip();
+  },
+
+  /**
+   * 获取心愿完成的持续时间
+   * @param {Array} wishList 心愿列表
+   */
+  getWishDuration(wishList) {
+    for (let i = 0; i < wishList.length; i++) {
+      let startDate = wishList[i].startDate;
+      let finishDate = wishList[i].finishDate;
+      let state = wishList[i].state;
+      if (state === true && startDate && finishDate) {
+        let duration = (new Date(finishDate).getTime() - new Date(startDate).getTime()) / 1000;
+        if (duration < 60) duration = duration.toFixed(1) + "秒";
+        else {
+          duration = duration / 60;
+          if (duration < 60) duration = duration.toFixed(1) + "分钟";
+          else {
+            duration = duration / 60;
+            if (duration < 24) duration = duration.toFixed(1) + "小时";
+            else duration = (duration / 24).toFixed(1) + "天";
+          }
+        }
+        wishList[i].duration = duration;
+      }
+    }
+    return wishList;
   },
 
   /**
@@ -226,11 +254,12 @@ Page({
         })
         .then(res => {
           if (res.result && res.result.result) {
+            let partialWishList = that.getWishDuration(res.result.partialWishList);
             that.setData({
-              wishList: res.result.partialWishList,
+              wishList: partialWishList,
               wishSum: res.result.wishSum
             })
-            wx.setStorageSync('wishList', res.result.partialWishList);
+            wx.setStorageSync('wishList', partialWishList);
             wx.setStorageSync('wishSum', res.result.wishSum);
             resolve(true);
           } else {
@@ -380,11 +409,12 @@ Page({
         })
         .then(res => {
           if (res.result && res.result.result) {
+            let partialWishList = that.getWishDuration(res.result.partialWishList);
             that.setData({
-              wishList: res.result.partialWishList,
+              wishList: partialWishList,
               wishSum: res.result.wishSum
             })
-            wx.setStorageSync('wishList', res.result.partialWishList);
+            wx.setStorageSync('wishList', partialWishList);
             wx.setStorageSync('wishSum', res.result.wishSum);
             resolve(true);
           } else {
