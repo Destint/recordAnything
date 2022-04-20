@@ -50,6 +50,14 @@ page {
   font-size: 30rpx;
 }
 
+.img-joke {
+  position: relative;
+  width: 50rpx;
+  height: 50rpx;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .img-empty {
   position: absolute;
   width: 128rpx;
@@ -247,4 +255,33 @@ page {
   right: 50rpx;
   margin-top: 20rpx;
   flex-shrink: 0;
+}
+
+.view-randomJoke-box {
+  position: fixed;
+  left: 45rpx;
+  right: 45rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #FBF2E3;
+  border-radius: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.text-randomJoke-viewName {
+  position: relative;
+  font-size: 30rpx;
+  color: #467B73;
+  margin-top: 10rpx;
+}
+
+.text-randomJoke-content {
+  position: relative;
+  font-size: 30rpx;
+  color: #467B73;
+  margin: 0rpx 30rpx 30rpx 30rpx;
+  max-height: 400rpx;
+  overflow-y: auto;
 }

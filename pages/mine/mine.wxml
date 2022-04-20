@@ -28,7 +28,7 @@
       <button class="btn-function" open-type="contact"></button>
     </view>
   </view>
-  <view class="view-function-box" style="margin-top: 30rpx;">
+  <view class="view-function-box" style="margin-top: 20rpx;">
     <!-- 设置头像 -->
     <view class="view-function" bindtap="onClickSetAvatar">
       <image class="img-function" src="../../images/img_avatar.png"></image>
@@ -47,7 +47,7 @@
       </view>
     </block>
   </view>
-  <view class="view-function-box" style="margin-top: 30rpx;">
+  <view class="view-function-box" style="margin-top: 20rpx;">
     <!-- 分享小程序 -->
     <view class="view-function">
       <image class="img-function" src="../../images/img_share.png"></image>
@@ -60,7 +60,7 @@
       <text class="text-function">关于小程序</text>
     </view>
   </view>
-  <view class="view-function-box" style="margin-top: 30rpx;">
+  <view class="view-function-box" style="margin-top: 20rpx;">
     <!-- 宜 -->
     <view class="view-function">
       <image class="img-function" src="../../images/img_suitable.png"></image>

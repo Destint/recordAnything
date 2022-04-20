@@ -14,6 +14,7 @@
     <!-- 全部回忆栏 -->
     <view class="view-memorySum-box">
       <text class="text-memorySum">全部回忆({{memorySum}})</text>
+      <image class="img-joke" src="../../images/img_joke.png" bindtap="onClickRandomJoke"></image>
     </view>
   </view>
   <block wx:if="{{memorySum}}">
@@ -49,7 +50,7 @@
   <image class="img-addMemory" src="../../images/img_add.png" bindtap="onClickAddMemory"></image>
   <block wx:if="{{showMemoryInfo}}">
     <!-- 详细的回忆信息蒙版 -->
-    <view class="view-memoryMask-box" bindtap="onClickMemoryMask"></view>
+    <view class="view-mask-box" bindtap="onClickMemoryMask"></view>
     <!-- 详细的回忆信息栏 -->
     <view class="view-memoryInfo-box">
       <!-- 回忆的标题栏 -->
@@ -92,7 +93,7 @@
   </block>
   <block wx:if="{{showAddMemory}}">
     <!-- 添加回忆页的蒙版 -->
-    <view class="view-memoryMask-box"></view>
+    <view class="view-mask-box"></view>
     <!-- 添加回忆页 -->
     <view class="view-addMemory-box">
       <text class="text-addMemory">记录回忆</text>
@@ -125,6 +126,14 @@
       </view>
       <image class="img-addMemory-record" src="../../images/img_record.png" bindtap="onClickRecordMemory"></image>
       <image class="img-addMemory-back" src="../../images/img_back.png" bindtap="onClickBackMemory"></image>
+    </view>
+  </block>
+  <block wx:if="{{showRandomJokeView}}">
+    <!-- 显示随机笑话的蒙版 -->
+    <view class="view-mask-box" bindtap="onClickRandomJokeMask"></view>
+    <view class="view-randomJoke-box">
+      <text class="text-randomJoke-viewName">随机笑话</text>
+      <text class="text-randomJoke-content">{{randomJoke}}</text>
     </view>
   </block>
 </view>
