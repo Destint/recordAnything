@@ -6,9 +6,16 @@
   <view class="view-top-box">
     <image class="img-user-avatar" src="{{avatar}}"></image>
     <text class="text-user-nickName">{{nickname}}</text>
+    <view class="view-calendar-box">
+      <text>{{calendar.date}}</text>
+      <text>{{calendar.lunar}}</text>
+      <text>{{calendar.year + ' ' + calendar.zodiac}}</text>
+      <text>{{calendar.month + ' ' + calendar.day}}</text>
+      <text>{{calendar.solarTerm}}</text>
+    </view>
   </view>
   <!-- 功能栏 -->
-  <view class="view-function-box">
+  <view class="view-function-box" style="margin-top: 270rpx;">
     <!-- 意见反馈 -->
     <view class="view-function" bindtap="onClickFeedback">
       <image class="img-function" src="../../images/img_feedback.png"></image>
@@ -20,8 +27,10 @@
       <text class="text-function">联系客服</text>
       <button class="btn-function" open-type="contact"></button>
     </view>
+  </view>
+  <view class="view-function-box" style="margin-top: 30rpx;">
     <!-- 设置头像 -->
-    <view class="view-function" bindtap="onClickSetAvatar" style="border-top: 1rpx solid #E4E4E4;">
+    <view class="view-function" bindtap="onClickSetAvatar">
       <image class="img-function" src="../../images/img_avatar.png"></image>
       <text class="text-function">设置头像</text>
     </view>
@@ -37,8 +46,10 @@
         <text class="text-function">设置公告</text>
       </view>
     </block>
+  </view>
+  <view class="view-function-box" style="margin-top: 30rpx;">
     <!-- 分享小程序 -->
-    <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
+    <view class="view-function">
       <image class="img-function" src="../../images/img_share.png"></image>
       <text class="text-function">分享小程序</text>
       <button class="btn-function" open-type="share"></button>
@@ -47,6 +58,18 @@
     <view class="view-function" bindtap="onClickAbout" style="border-top: 1rpx solid #E4E4E4;">
       <image class="img-function" src="../../images/img_about.png"></image>
       <text class="text-function">关于小程序</text>
+    </view>
+  </view>
+  <view class="view-function-box" style="margin-top: 30rpx;">
+    <!-- 宜 -->
+    <view class="view-function">
+      <image class="img-function" src="../../images/img_suitable.png"></image>
+      <text class="text-function">{{calendar.suitable}}</text>
+    </view>
+    <!-- 忌 -->
+    <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_tapu.png"></image>
+      <text class="text-function">{{calendar.tapu}}</text>
     </view>
   </view>
   <block wx:if="{{showFeedback}}">
@@ -109,7 +132,7 @@
     <view class="view-set-box">
       <text class="text-viewName">设置昵称</text>
       <view class="view-set-content">
-        <input class="input-set-content" maxlength="10" placeholder="请输入昵称..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNicknameContent" />
+        <input class="input-set-content" maxlength="6" placeholder="请输入昵称..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNicknameContent" />
       </view>
       <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUploadNickname"></image>
     </view>

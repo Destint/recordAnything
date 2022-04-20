@@ -31,9 +31,19 @@ page {
   margin-left: 35rpx;
 }
 
+.view-calendar-box {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 25rpx;
+  right: 45rpx;
+  color: #feffff;
+}
+
 .view-function-box {
   position: relative;
-  margin: 270rpx 35rpx 0 35rpx;
+  margin: 0rpx 35rpx 0 35rpx;
   background-color: #FEFFFF;
   border-radius: 30rpx;
 }
@@ -42,7 +52,6 @@ page {
   position: relative;
   display: flex;
   align-items: center;
-  height: 80rpx;
 }
 
 .img-function {
@@ -57,7 +66,7 @@ page {
   position: relative;
   color: #467B73;
   font-size: 30rpx;
-  margin-left: 30rpx;
+  margin: 20rpx 30rpx 20rpx 30rpx;
 }
 
 .btn-function {

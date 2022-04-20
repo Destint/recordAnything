@@ -9,6 +9,7 @@ Page({
    */
   data: {
     showPopup: false, // 是否显示弹出窗口(true可以防止弹窗穿透)
+    calendar: wx.getStorageSync('calendar') ? wx.getStorageSync('calendar') : {}, // 万年历
     showFeedback: false, // 是否显示意见反馈
     localPicPathList: [], // 本地图片路径列表
     cloudPicPathList: [], // 云端图片路径列表
@@ -34,6 +35,7 @@ Page({
   onLoad() {
     let that = this;
     wx.showShareMenu();
+    that.getCalendarInfo();
     that.getManagePermission();
     that.checkLocalAvatarPath();
     that.checkNickname();
@@ -58,6 +60,72 @@ Page({
       path: '/pages/memory/memory',
       imageUrl: '/images/img_logo.png'
     };
+  },
+
+  /**
+   * 获取万年历信息
+   */
+  async getCalendarInfo() {
+    let that = this;
+    let currentDate = await that.getCurrentDate();
+    if (!currentDate) return;
+    currentDate = currentDate.slice(0, 10);
+    let oldCalendar = wx.getStorageSync('calendar');
+    if (oldCalendar && oldCalendar.date === currentDate) return;
+    wx.request({
+      url: 'https://api.djapi.cn/wannianli/get',
+      data: {
+        date: currentDate,
+        cn_to_unicode: '1',
+        token: '37555a616248cb486ca0e60c10eca164',
+        datatype: 'json'
+      },
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        let result = res.data.Result;
+        let calendar = {};
+        calendar['date'] = currentDate;
+        calendar['year'] = result.nianci.slice(0, 3);
+        calendar['month'] = result.nianci.slice(3, 6);
+        calendar['day'] = result.nianci.slice(6, 9);
+        calendar['zodiac'] = result.shengxiao;
+        calendar['lunar'] = result.nongli.slice(3, 7);
+        calendar['solarTerm'] = result.jieqi;
+        calendar['suitable'] = result.do;
+        calendar['tapu'] = result.nodo;
+        console.log(calendar)
+        that.setData({
+          calendar: calendar
+        })
+        wx.setStorageSync('calendar', calendar);
+      },
+      fail() {}
+    })
+  },
+
+  /**
+   * 获取当前日期
+   */
+  async getCurrentDate() {
+    let that = this;
+    let p = new Promise(function (resolve, reject) {
+      wx.cloud.callFunction({
+          name: 'getCurrentDate'
+        })
+        .then(res => {
+          if (res.result && res.result.result) {
+            resolve(res.result.currentDate);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(error => {
+          resolve(false);
+        })
+    });
+    return await p;
   },
 
   /**
@@ -740,7 +808,7 @@ Page({
     if (nickname) return;
     let userInfo = await that.getUserInfo();
     if (!userInfo) return;
-    wx.setStorageSync('userInfo', userInfo.nickname);
+    wx.setStorageSync('nickname', userInfo.nickname);
     that.setData({
       nickname: userInfo.nickname
     })
