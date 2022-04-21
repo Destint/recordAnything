@@ -62,20 +62,23 @@
       <text class="text-function">关于小程序</text>
     </view>
   </view>
-  <block wx:if="{{calendar.suitable && calendar.tapu}}">
-    <view class="view-function-box" style="margin-top: 20rpx;">
-      <!-- 宜 -->
-      <view class="view-function">
-        <image class="img-function" src="../../images/img_suitable.png"></image>
-        <text class="text-function">{{calendar.suitable}}</text>
-      </view>
-      <!-- 忌 -->
-      <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
-        <image class="img-function" src="../../images/img_tapu.png"></image>
-        <text class="text-function">{{calendar.tapu}}</text>
-      </view>
+  <view class="view-function-box" style="margin-top: 20rpx;">
+    <!-- 今日宜忌 -->
+    <view class="view-function" bindtap="onClickSuitAndAvoid">
+      <image class="img-function" src="../../images/img_suit_and_avoid.png"></image>
+      <text class="text-function">今日宜忌</text>
     </view>
-  </block>
+    <!-- 随机笑话 -->
+    <view class="view-function" bindtap="onClickRandomJoke" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_joke.png"></image>
+      <text class="text-function">随机笑话</text>
+    </view>
+    <!-- 随机土味 -->
+    <view class="view-function" bindtap="onClickRandomEarthy" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_earthy.png"></image>
+      <text class="text-function">随机土味</text>
+    </view>
+  </view>
   <block wx:if="{{showFeedback}}">
     <!-- 意见反馈页的蒙版 -->
     <view class="view-mask-box"></view>
@@ -114,7 +117,7 @@
     <view class="view-mask-box" bindtap="onClickAboutSelfMask"></view>
     <view class="view-aboutSelf-box">
       <text class="text-viewName">关于小程序</text>
-      <text class="text-aboutSelf">{{aboutSelfContent}}</text>
+      <text class="text-aboutSelf" user-select>{{aboutSelfContent}}</text>
       <image class="img-praise" src="{{praiseState ? '../../images/img_praise.png' : '../../images/img_no_praise.png'}}" bindtap="onClickPraise"></image>
       <text class="text-praiseSum">{{praiseSum}}</text>
     </view>
@@ -139,6 +142,14 @@
         <input class="input-set-content" maxlength="6" placeholder="请输入昵称..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setNicknameContent" />
       </view>
       <image class="img-set-update" src="../../images/img_upload.png" bindtap="onClickUploadNickname"></image>
+    </view>
+  </block>
+  <block wx:if="{{showOtherFunctionView}}">
+    <!-- 显示其他功能的蒙版 -->
+    <view class="view-mask-box" bindtap="onClickOtherFunctionMask"></view>
+    <view class="view-otherFunction-box">
+      <text class="text-otherFunction-viewName">{{otherFunctionTitle}}</text>
+      <text class="text-otherFunction-content" user-select>{{otherFunctionContent}}</text>
     </view>
   </block>
 </view>

@@ -9,8 +9,6 @@ Page({
    */
   data: {
     showPopup: false, // 是否显示弹出窗口(true可以防止弹窗穿透)
-    showRandomJokeView: false, // 是否显示随机笑话
-    randomJoke: '', // 随机笑话
     notice: wx.getStorageSync('notice') ? wx.getStorageSync('notice') : '', // 公告栏数据(最多40个汉字,尽量20个以内)
     wishSum: wx.getStorageSync('wishSum') ? wx.getStorageSync('wishSum') : 0, // 心愿总数
     wishList: wx.getStorageSync('wishList') ? wx.getStorageSync('wishList') : [], // 心愿列表
@@ -429,49 +427,6 @@ Page({
     });
     let result = await p;
     if (!result) that.showErrorTip();
-  },
-
-  /**
-   * 点击随机笑话
-   */
-  onClickRandomJoke() {
-    let that = this;
-    wx.request({
-      url: 'https://www.mxnzp.com/api/jokes/list/random',
-      data: {
-        app_id: 'fjkpgjqmxolqnmqm',
-        app_secret: 'SEJGam9aWldEaUFtQWIyZ0FHTHZhQT09'
-      },
-      header: {
-        'content-type': 'application/json'
-      },
-      success(res) {
-        let jokeList = res.data.data;
-        let randomJoke = jokeList[Math.floor(Math.random() * (jokeList.length))];
-        randomJoke = randomJoke ? randomJoke.content : '获取笑话失败请重试';
-        that.setData({
-          showRandomJokeView: true,
-          showPopup: true,
-          randomJoke: randomJoke
-        })
-      },
-      fail() {
-        that.showErrorTip();
-      }
-    })
-  },
-
-  /**
-   * 触碰随机笑话页蒙版
-   * @param {Object} e 点击事件的对象
-   */
-  onClickRandomJokeMask(e) {
-    let that = this;
-    that.setData({
-      showRandomJokeView: false,
-      showPopup: false,
-      randomJoke: ''
-    })
   },
 
   /**

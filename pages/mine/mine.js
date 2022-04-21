@@ -25,6 +25,9 @@ Page({
     aboutSelfContent: '这是一个可以《留住回忆》的小程序。\n可选的需要小程序授权的功能：\n1、开启手机和小程序的定位服务，可以在记录回忆时记下当前的位置与天气。\n2、记录回忆时可以从手机相册中选择想要的图片一同记录。\n如果您在使用小程序时遇到任何问题或者您对小程序有更好的建议或想法，欢迎通过《意见反馈》或《联系客服》功能来向开发者反馈。', // 关于回忆录的文本
     praiseState: wx.getStorageSync('praiseState') ? wx.getStorageSync('praiseState') : false, // 是否赞美小程序
     praiseSum: wx.getStorageSync('praiseSum') ? wx.getStorageSync('praiseSum') : 0, // 赞美小程序的总人数
+    showOtherFunctionView: false, // 是否显示其他功能页面(今日宜忌)
+    otherFunctionTitle: '', // 其他功能页标题
+    otherFunctionContent: '', // 其他功能页内容
   },
 
   uploadFeedbackState: false, // 上传意见反馈的状态(防止两次点击上传)
@@ -810,6 +813,96 @@ Page({
     wx.setStorageSync('nickname', userInfo.nickname);
     that.setData({
       nickname: userInfo.nickname
+    })
+  },
+
+  /**
+   * 点击今日宜忌
+   */
+  onClickSuitAndAvoid() {
+    let that = this;
+    let otherFunctionTitle = "今日宜忌";
+    let otherFunctionContent = "宜: " + that.data.calendar.suitable + "\n忌: " + that.data.calendar.tapu;
+    that.setData({
+      showOtherFunctionView: true,
+      showPopup: true,
+      otherFunctionTitle: otherFunctionTitle,
+      otherFunctionContent: otherFunctionContent
+    })
+  },
+
+  /**
+   * 点击随机笑话
+   */
+  onClickRandomJoke() {
+    let that = this;
+    wx.request({
+      url: 'https://www.mxnzp.com/api/jokes/list/random',
+      data: {
+        app_id: 'fjkpgjqmxolqnmqm',
+        app_secret: 'SEJGam9aWldEaUFtQWIyZ0FHTHZhQT09'
+      },
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        let jokeList = res.data.data;
+        let randomJoke = jokeList[Math.floor(Math.random() * (jokeList.length))];
+        let otherFunctionTitle = "随机笑话";
+        let otherFunctionContent = randomJoke ? randomJoke.content : '获取笑话失败请重试';
+        that.setData({
+          showOtherFunctionView: true,
+          showPopup: true,
+          otherFunctionTitle: otherFunctionTitle,
+          otherFunctionContent: otherFunctionContent
+        })
+      },
+      fail() {
+        that.showErrorTip();
+      }
+    })
+  },
+
+  /**
+   * 点击随机土味
+   */
+  onClickRandomEarthy() {
+    let that = this;
+    wx.request({
+      url: 'https://api.uomg.com/api/rand.qinghua',
+      data: {
+        format: 'json'
+      },
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        let otherFunctionTitle = "随机土味";
+        let otherFunctionContent = res.data && res.data.content ? res.data.content : '获取土味失败请重试';
+        that.setData({
+          showOtherFunctionView: true,
+          showPopup: true,
+          otherFunctionTitle: otherFunctionTitle,
+          otherFunctionContent: otherFunctionContent
+        })
+      },
+      fail() {
+        that.showErrorTip();
+      }
+    })
+  },
+
+  /**
+   * 触碰其他功能页蒙版
+   * @param {Object} e 点击事件的对象
+   */
+  onClickOtherFunctionMask(e) {
+    let that = this;
+    that.setData({
+      showOtherFunctionView: false,
+      showPopup: false,
+      otherFunctionTitle: '',
+      otherFunctionContent: ''
     })
   },
 
