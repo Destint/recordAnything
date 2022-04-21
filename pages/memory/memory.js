@@ -816,21 +816,22 @@ Page({
   onClickRandomJoke() {
     let that = this;
     wx.request({
-      url: 'https://api.djapi.cn/joke/get',
+      url: 'https://www.mxnzp.com/api/jokes/list/random',
       data: {
-        limit: '1',
-        cn_to_unicode: '1',
-        token: '37555a616248cb486ca0e60c10eca164',
-        datatype: 'json'
+        app_id: 'fjkpgjqmxolqnmqm',
+        app_secret: 'SEJGam9aWldEaUFtQWIyZ0FHTHZhQT09'
       },
       header: {
         'content-type': 'application/json'
       },
       success(res) {
+        let jokeList = res.data.data;
+        let randomJoke = jokeList[Math.floor(Math.random() * (jokeList.length + 1))];
+        randomJoke = randomJoke ? randomJoke.content : '获取笑话失败请重试';
         that.setData({
           showRandomJokeView: true,
           showPopup: true,
-          randomJoke: res.data.Result.content
+          randomJoke: randomJoke
         })
       },
       fail() {
