@@ -826,7 +826,7 @@ Page({
       },
       success(res) {
         let jokeList = res.data.data;
-        let randomJoke = jokeList[Math.floor(Math.random() * (jokeList.length + 1))];
+        let randomJoke = jokeList[Math.floor(Math.random() * (jokeList.length))];
         randomJoke = randomJoke ? randomJoke.content : '获取笑话失败请重试';
         that.setData({
           showRandomJokeView: true,
