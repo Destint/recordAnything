@@ -6,13 +6,15 @@
   <view class="view-top-box">
     <image class="img-user-avatar" src="{{avatar}}"></image>
     <text class="text-user-nickName">{{nickname}}</text>
-    <view class="view-calendar-box">
-      <text>{{calendar.date}}</text>
-      <text>{{calendar.lunar}}</text>
-      <text>{{calendar.year + ' ' + calendar.zodiac}}</text>
-      <text>{{calendar.month + ' ' + calendar.day}}</text>
-      <text>{{calendar.solarTerm}}</text>
-    </view>
+    <block wx:if="{{calendar.date}}">
+      <view class="view-calendar-box">
+        <text>{{calendar.date}}</text>
+        <text>{{calendar.lunar}}</text>
+        <text>{{calendar.year + ' ' + calendar.zodiac}}</text>
+        <text>{{calendar.month + ' ' + calendar.day}}</text>
+        <text>{{calendar.solarTerm}}</text>
+      </view>
+    </block>
   </view>
   <!-- 功能栏 -->
   <view class="view-function-box" style="margin-top: 270rpx;">
@@ -60,18 +62,20 @@
       <text class="text-function">关于小程序</text>
     </view>
   </view>
-  <view class="view-function-box" style="margin-top: 20rpx;">
-    <!-- 宜 -->
-    <view class="view-function">
-      <image class="img-function" src="../../images/img_suitable.png"></image>
-      <text class="text-function">{{calendar.suitable}}</text>
+  <block wx:if="{{calendar.suitable && calendar.tapu}}">
+    <view class="view-function-box" style="margin-top: 20rpx;">
+      <!-- 宜 -->
+      <view class="view-function">
+        <image class="img-function" src="../../images/img_suitable.png"></image>
+        <text class="text-function">{{calendar.suitable}}</text>
+      </view>
+      <!-- 忌 -->
+      <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
+        <image class="img-function" src="../../images/img_tapu.png"></image>
+        <text class="text-function">{{calendar.tapu}}</text>
+      </view>
     </view>
-    <!-- 忌 -->
-    <view class="view-function" style="border-top: 1rpx solid #E4E4E4;">
-      <image class="img-function" src="../../images/img_tapu.png"></image>
-      <text class="text-function">{{calendar.tapu}}</text>
-    </view>
-  </view>
+  </block>
   <block wx:if="{{showFeedback}}">
     <!-- 意见反馈页的蒙版 -->
     <view class="view-mask-box"></view>
