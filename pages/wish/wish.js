@@ -150,7 +150,7 @@ Page({
       let finishDate = wishList[i].finishDate;
       let state = wishList[i].state;
       if (state === true && startDate && finishDate) {
-        let duration = (new Date(finishDate).getTime() - new Date(startDate).getTime()) / 1000;
+        let duration = (new Date(finishDate.replace(/-/g, '/')).getTime() - new Date(startDate.replace(/-/g, '/')).getTime()) / 1000;
         if (duration < 60) duration = duration.toFixed(1) + "秒";
         else {
           duration = duration / 60;

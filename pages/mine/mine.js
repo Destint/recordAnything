@@ -95,7 +95,6 @@ Page({
         calendar['solarTerm'] = result.jieqi;
         calendar['suitable'] = result.do;
         calendar['tapu'] = result.nodo;
-        console.log(calendar)
         that.setData({
           calendar: calendar
         })
