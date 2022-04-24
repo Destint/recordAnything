@@ -135,7 +135,7 @@ page {
   position: relative;
 }
 
-.img-wishCell-finish-icon {
+.img-wishCell-state-icon {
   position: absolute;
   width: 48rpx;
   height: 48rpx;
@@ -158,39 +158,6 @@ page {
   top: 50%;
   transform: translateY(-50%);
   flex-shrink: 0;
-}
-
-.view-wishCell-setBox {
-  position: absolute;
-  right: 35rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: row;
-}
-
-.view-wishCell-setCell {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.img-wishCell-finish {
-  width: 48rpx;
-  height: 48rpx;
-  flex-shrink: 0;
-}
-
-.img-wishCell-delete {
-  width: 48rpx;
-  height: 48rpx;
-  flex-shrink: 0;
-}
-
-.text-wishCell-setName {
-  color: #467B73;
-  font-size: 20rpx;
 }
 
 .img-addWish {

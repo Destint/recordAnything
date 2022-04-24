@@ -19,39 +19,23 @@
   <block wx:if="{{wishSum}}">
     <block wx:for-items="{{wishList}}" wx:key="index">
       <!-- 单个心愿栏 -->
-      <view class="view-wishCell-box" bind:touchend="touchWishEnd" data-data="{{index}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
+      <view class="view-wishCell-box" data-data="{{index}}" style="margin-top:{{index == 0 ? '0' : '20rpx'}}">
         <text class="text-wishCell-content" style="text-decoration:{{item.state ? 'line-through' : ''}}">{{item.content}}</text>
         <view class="view-wishCell-info">
           <text class="text-wishCell-startDate">{{item.startDate}}</text>
-          <text class="text-wishCell-finishData">{{item.finishDate}}</text>
           <block wx:if="{{item.state}}">
-            <image class="img-wishCell-finish-icon" src="../../images/img_wish_finish_icon.png"></image>
+            <block wx:if="{{item.finishDate}}">
+              <text class="text-wishCell-finishData">{{item.finishDate}}</text>
+              <image class="img-wishCell-state-icon" src="../../images/img_wish_finish_icon.png"></image>
+            </block>
+            <block wx:if="{{item.giveUpDate}}">
+              <text class="text-wishCell-finishData">{{item.giveUpDate}}</text>
+              <image class="img-wishCell-state-icon" src="../../images/img_wish_give_up_icon.png"></image>
+            </block>
             <text class="text-wishCell-duration">{{item.duration}}</text>
           </block>
         </view>
-        <block wx:if="{{!item.set}}">
-          <image class="img-wishCell-editor" src="../../images/img_editor.png" bindtap="onClickEditorWish" data-data="{{index}}"></image>
-        </block>
-        <block wx:if="{{item.set}}">
-          <view class="view-wishCell-setBox">
-            <block wx:if="{{item.state}}">
-              <view class="view-wishCell-setCell" style="margin-right: 35rpx;" bindtap="onClickWishUnfinish" data-data="{{item.id}}">
-                <image class="img-wishCell-finish" src="../../images/img_wish_unfinish.png"></image>
-                <text class="text-wishCell-setName">未完成</text>
-              </view>
-            </block>
-            <block wx:else>
-              <view class="view-wishCell-setCell" style="margin-right: 35rpx;" bindtap="onClickWishFinish" data-data="{{item.id}}">
-                <image class="img-wishCell-finish" src="../../images/img_wish_finish.png"></image>
-                <text class="text-wishCell-setName">完成</text>
-              </view>
-            </block>
-            <view class="view-wishCell-setCell" bindtap="onClickWishDelete" data-data="{{item.id}}">
-              <image class="img-wishCell-delete" src="../../images/img_wish_delete.png"></image>
-              <text class="text-wishCell-setName">删除</text>
-            </view>
-          </view>
-        </block>
+        <image class="img-wishCell-editor" src="../../images/img_editor.png" bindtap="onClickEditorWish" data-data="{{item}}"></image>
       </view>
     </block>
   </block>

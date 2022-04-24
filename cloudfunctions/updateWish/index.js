@@ -54,6 +54,11 @@ exports.main = async (event, context) => {
       } else {
         wishList.push(updateWish);
       }
+    } else if(event.wishState === 3) {
+      updateWish.state = true;
+      updateWish.giveUpDate = formatTime(new Date());
+      wishList.splice(updateWishIndex, 1);
+      wishList[wishList.length] = updateWish;
     }
     await db.collection('wish').where({
       _openid: wxContext.OPENID

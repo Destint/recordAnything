@@ -145,10 +145,10 @@ Page({
   getWishDuration(wishList) {
     for (let i = 0; i < wishList.length; i++) {
       let startDate = wishList[i].startDate;
-      let finishDate = wishList[i].finishDate;
+      let endDate = wishList[i].finishDate ? wishList[i].finishDate : wishList[i].giveUpDate;
       let state = wishList[i].state;
-      if (state === true && startDate && finishDate) {
-        let duration = (new Date(finishDate.replace(/-/g, '/')).getTime() - new Date(startDate.replace(/-/g, '/')).getTime()) / 1000;
+      if (state === true && startDate && endDate) {
+        let duration = (new Date(endDate.replace(/-/g, '/')).getTime() - new Date(startDate.replace(/-/g, '/')).getTime()) / 1000;
         if (duration < 60) duration = duration.toFixed(1) + "秒";
         else {
           duration = duration / 60;
@@ -280,34 +280,34 @@ Page({
    */
   onClickEditorWish(e) {
     let that = this;
-    let index = e.currentTarget.dataset.data;
-    let wishList = 'wishList[' + index + '].set';
-
-    that.setData({
-      [wishList]: true
-    })
-  },
-
-  /**
-   * 触碰心愿结束
-   * @param {Object} e 点击事件的对象
-   */
-  touchWishEnd(e) {
-    let that = this;
-    let index = e.currentTarget.dataset.data;
-    let wishList = 'wishList[' + index + '].set';
-
-    that.setData({
-      [wishList]: false
-    })
+    let wish = e.currentTarget.dataset.data;
+    if (wish.state) {
+      wx.showActionSheet({
+        itemList: ['删除心愿'],
+        success(res) {
+          if (res.tapIndex === 0) that.onClickWishDelete(wish.id)
+        },
+        fail(res) {}
+      })
+    } else {
+      wx.showActionSheet({
+        itemList: ['完成心愿', '放弃心愿', '删除心愿'],
+        success(res) {
+          if (res.tapIndex === 0) that.onClickWishFinish(wish.id)
+          else if (res.tapIndex === 1) that.onClickWishGiveUp(wish.id);
+          else if (res.tapIndex === 2) that.onClickWishDelete(wish.id);
+        },
+        fail(res) {}
+      })
+    }
   },
 
   /**
    * 点击完成心愿
+   * @param {Number} wishId 心愿id
    */
-  onClickWishFinish(e) {
+  onClickWishFinish(wishId) {
     let that = this;
-    let wishId = e.currentTarget.dataset.data;
 
     wx.showModal({
         title: '温馨提示',
@@ -333,28 +333,28 @@ Page({
   },
 
   /**
-   * 点击未完成心愿
+   * 点击放弃心愿
+   * @param {Number} wishId 心愿id
    */
-  onClickWishUnfinish(e) {
+  onClickWishGiveUp(wishId) {
     let that = this;
-    let wishId = e.currentTarget.dataset.data;
 
     wx.showModal({
         title: '温馨提示',
-        content: '确定还原该心愿吗',
+        content: '确定放弃该心愿吗',
         cancelText: '取消',
         confirmText: '确定'
       })
       .then(async res => {
         if (res.confirm) {
           wx.showLoading({
-            title: '还原中...',
+            title: '放弃中...',
             mask: true
           })
-          await that.updateWish(wishId, 0);
+          await that.updateWish(wishId, 3);
           wx.hideLoading();
           wx.showToast({
-            title: '还原成功',
+            title: '放弃成功',
             icon: 'none',
             duration: 1500
           })
@@ -364,10 +364,10 @@ Page({
 
   /**
    * 点击删除心愿
+   * @param {Number} wishId 心愿id
    */
-  onClickWishDelete(e) {
+  onClickWishDelete(wishId) {
     let that = this;
-    let wishId = e.currentTarget.dataset.data;
 
     wx.showModal({
         title: '温馨提示',
@@ -395,7 +395,7 @@ Page({
   /**
    * 更新心愿
    * @param {Number} wishId 更新心愿的id
-   * @param {Number} wishState 更新心愿的状态(0 未完成 1 完成 2 删除)
+   * @param {Number} wishState 更新心愿的状态(1 完成 2 删除 3 放弃)
    */
   async updateWish(wishId, wishState) {
     let that = this;
