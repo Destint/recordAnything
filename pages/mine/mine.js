@@ -807,9 +807,8 @@ Page({
   async checkNickname() {
     let that = this;
     let nickname = wx.getStorageSync('nickname');
-    if (nickname) return;
     let userInfo = await that.getUserInfo();
-    if (!userInfo) return;
+    if (!userInfo || userInfo.nickname === nickname) return;
     wx.setStorageSync('nickname', userInfo.nickname);
     that.setData({
       nickname: userInfo.nickname
