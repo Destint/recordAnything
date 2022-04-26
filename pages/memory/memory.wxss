@@ -266,8 +266,7 @@ page {
 
 .view-addMemory-title {
   position: relative;
-  margin: 80rpx 35rpx 0 35rpx;
-  height: 80rpx;
+  margin: 50rpx 35rpx 0 35rpx;
   border-bottom: 1rpx solid #467B73;
   display: flex;
   align-items: center;
@@ -339,6 +338,45 @@ page {
   flex-shrink: 0;
 }
 
+.view-addMemory-record {
+  position: relative;
+  margin: 10rpx 35rpx 0 35rpx;
+  display: flex;
+  align-items: center;
+  padding-bottom: 10rpx;
+  border-bottom: 1rpx solid #467B73;
+}
+
+.img-addMemory-record-icon {
+  position: relative;
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.text-addMemory-record-tip {
+  position: relative;
+  color: #467B73;
+  font-size: 30rpx;
+  margin-left: 10rpx;
+}
+
+.img-addMemory-record-state {
+  position: relative;
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 30rpx;
+  flex-shrink: 0;
+}
+
+.img-addMemory-record-delete {
+  position: absolute;
+  width: 32rpx;
+  height: 32rpx;
+  right: 30rpx;
+  flex-shrink: 0;
+}
+
 .view-addMemory-content {
   position: relative;
   margin: 10rpx 35rpx 0 35rpx;
@@ -354,11 +392,21 @@ page {
   padding-bottom: 10rpx;
 }
 
-.img-addMemory-record {
+.img-addMemory-write {
   position: absolute;
   width: 100rpx;
   height: 100rpx;
   right: 50rpx;
+  margin-top: 20rpx;
+  flex-shrink: 0;
+}
+
+.img-addMemory-record {
+  position: absolute;
+  width: 100rpx;
+  height: 100rpx;
+  left: 50%;
+  transform: translateX(-50%);
   margin-top: 20rpx;
   flex-shrink: 0;
 }

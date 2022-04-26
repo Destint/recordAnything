@@ -119,11 +119,29 @@
           </view>
         </block>
       </view>
+      <!-- 添加的录音栏 -->
+      <view class="view-addMemory-record">
+        <image class="img-addMemory-record-icon" src="../../images/img_record_icon.png"></image>
+        <block wx:if="{{addMemory.localRecordPath}}">
+          <text class="text-addMemory-record-tip">录音时长 {{addMemory.recordDuration}}"</text>
+          <block wx:if="{{playRecordState}}">
+            <image class="img-addMemory-record-state" src="../../images/img_paush_record.png" bindtap="onClickPaushRecord"></image>
+          </block>
+          <block wx:else>
+            <image class="img-addMemory-record-state" src="../../images/img_play_record.png" bindtap="onClickPlayRecord"></image>
+          </block>
+          <image class="img-addMemory-record-delete" src="../../images/img_delete_record.png" bindtap="onClickDeleteRecord"></image>
+        </block>
+        <block wx:else>
+          <text class="text-addMemory-record-tip">当前暂无录音</text>
+        </block>
+      </view>
       <!-- 添加的回忆内容栏 -->
       <view class="view-addMemory-content">
         <textarea class="textarea-addMemory-content" maxlength="-1" placeholder="回忆的内容..." bindinput="addMemoryContent" placeholder-style="color: rgba(70,123,115,0.5);" disable-default-padding='true' cursor-spacing="30"></textarea>
       </view>
-      <image class="img-addMemory-record" src="../../images/img_record.png" bindtap="onClickRecordMemory"></image>
+      <image class="img-addMemory-write" src="../../images/img_write.png" bindtap="onClickWriteMemory"></image>
+      <image class="img-addMemory-record" src="../../images/img_record.png" catchtouchstart="onTouchStartRecord" catchtouchend="onTouchEndRecord" catchtouchcancel="onTouchCancelRecord"></image>
       <image class="img-addMemory-back" src="../../images/img_back.png" bindtap="onClickBackMemory"></image>
     </view>
   </block>

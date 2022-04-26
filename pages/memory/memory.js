@@ -18,6 +18,7 @@ Page({
     showMemoryInfo: false, // 是否显示回忆信息
     memoryInfo: {}, // 详细的回忆信息
     showAddMemory: false, // 是否显示添加回忆
+    playRecordState: false, // 播放录音状态
     addMemory: {
       title: '',
       localPicPathList: [],
@@ -26,12 +27,17 @@ Page({
       id: 0,
       date: '',
       address: '',
-      simpleAddress: ''
+      simpleAddress: '',
+      localRecordPath: '',
+      cloudRecordPath: '',
+      recordDuration: 0
     }, // 添加的回忆内容
   },
 
   recordMemoryState: false, // 记录回忆状态(防止两次点击记录回忆)
   reachBottomState: false, // 上拉触底状态(防止多次上拉)
+  recordState: false, // 录音状态
+  audioManager: '', // 音频管理器
 
   /**
    * 页面创建时执行
@@ -203,6 +209,66 @@ Page({
     }).catch(err => {})
     return memoryList;
   },
+
+  /**
+   * 下载云录音文件到本地(减少云存储的消耗)
+   * @param {Array} memoryList 回忆列表
+   * @return {Array} 处理后的回忆列表
+   */
+  // async downloadCloudRecordToLocal(memoryList) {
+  //   let that = this;
+  //   let proArr = [];
+  //   if (memoryList.length === 0) return memoryList;
+  //   let recordPath = wx.getStorageSync('recordPath');
+  //   recordPath = recordPath ? JSON.parse(recordPath) : {};
+  //   for (let i = 0; i < memoryList.length; i++) {
+  //     let cloudRecordPath = memoryList[i].cloudRecordPath;
+  //     if (!cloudRecordPath) continue;
+  //     proArr.push(new Promise(async function (resolve, reject) {
+  //       let cloudPicName = cloudPicPathList[j].slice(cloudPicPathList[j].lastIndexOf("/") + 1);
+  //       if (picPath[cloudPicName]) {
+  //         await wx.getImageInfo({
+  //             src: picPath[cloudPicName]
+  //           })
+  //           .then(res => {
+  //             memoryList[i].localPicPathList[j] = picPath[cloudPicName];
+  //             resolve(true);
+  //           })
+  //           .catch(async (res) => {
+  //             await wx.cloud.downloadFile({
+  //                 fileID: cloudPicPathList[j]
+  //               })
+  //               .then(res => {
+  //                 memoryList[i].localPicPathList[j] = res.tempFilePath;
+  //                 picPath[cloudPicName] = res.tempFilePath;
+  //                 resolve(true);
+  //               })
+  //               .catch(res => {
+  //                 memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
+  //                 resolve(true);
+  //               })
+  //           })
+  //       } else {
+  //         await wx.cloud.downloadFile({
+  //             fileID: cloudPicPathList[j]
+  //           })
+  //           .then(res => {
+  //             memoryList[i].localPicPathList[j] = res.tempFilePath;
+  //             picPath[cloudPicName] = res.tempFilePath;
+  //             resolve(true);
+  //           })
+  //           .catch(res => {
+  //             memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
+  //             resolve(true);
+  //           })
+  //       }
+  //     }))
+  //   }
+  //   await Promise.all(proArr).then(res => {
+  //     wx.setStorageSync('picPath', JSON.stringify(picPath));
+  //   }).catch(err => {})
+  //   return memoryList;
+  // },
 
   /**
    * 获取公告
@@ -381,7 +447,9 @@ Page({
             showAddMemory: false,
             [`${`addMemory.${'title'}`}`]: '',
             [`${`addMemory.${'localPicPathList'}`}`]: [],
-            [`${`addMemory.${'content'}`}`]: ''
+            [`${`addMemory.${'content'}`}`]: '',
+            [`${`addMemory.${'localRecordPath'}`}`]: '',
+            [`${`addMemory.${'recordDuration'}`}`]: 0
           })
         }
       })
@@ -471,7 +539,7 @@ Page({
   /**
    * 点击记录回忆
    */
-  async onClickRecordMemory() {
+  async onClickWriteMemory() {
     let that = this;
     let memoryTitle = that.data.addMemory.title;
     let memoryContent = that.data.addMemory.content;
@@ -561,6 +629,7 @@ Page({
     let that = this;
     let localPicPathList = that.data.addMemory.localPicPathList;
     if (localPicPathList.length !== 0) await that.uploadLocalPicList();
+    if (that.data.addMemory.localRecordPath) await that.uploadLocalRecordPath();
     await that.getCurrentAddressInfo();
     await that.getCurrentDate();
 
@@ -606,6 +675,32 @@ Page({
         [`${`addMemory.${'cloudPicPathList'}`}`]: cloudPicPathList
       })
     }).catch((err) => {})
+  },
+
+  /**
+   * 上传本地录音路径
+   */
+  async uploadLocalRecordPath() {
+    let that = this;
+    let localRecordPath = that.data.addMemory.localRecordPath;
+    let currentInfo = await that.getOpenId();
+    let p = new Promise(async function (resolve, reject) {
+      wx.cloud.uploadFile({
+          cloudPath: 'record/' + currentInfo.openId + '/' + currentInfo.date + '.mp3', // 上传至云端的路径
+          filePath: localRecordPath, // 上传的临时文件路径
+        })
+        .then(res => {
+          that.setData({
+            [`${`addMemory.${'cloudRecordPath'}`}`]: res.fileID
+          })
+          resolve(true);
+        })
+        .catch(error => {
+          resolve(true);
+        })
+    })
+
+    await p;
   },
 
   /**
@@ -773,7 +868,10 @@ Page({
       id: 0,
       date: '',
       address: '',
-      simpleAddress: ''
+      simpleAddress: '',
+      localRecordPath: '',
+      cloudRecordPath: '',
+      recordDuration: 0
     };
     that.setData({
       showAddMemory: false,
@@ -806,6 +904,162 @@ Page({
         })
     });
     return await p;
+  },
+
+  /**
+   * 手指触碰开始录音
+   */
+  onTouchStartRecord() {
+    let that = this;
+    if (that.recordState === true) return;
+    if (that.data.addMemory.localRecordPath) {
+      wx.showToast({
+        title: '请删除已有录音后重试',
+        icon: 'none',
+        duration: 2000
+      })
+      return;
+    }
+    that.recordState = true;
+    const recorderManager = wx.getRecorderManager();
+    recorderManager.onStart(() => {
+      if (that.recordState === false) {
+        recorderManager.stop();
+      } else {
+        wx.showLoading({
+          title: '录音中',
+        })
+      }
+    })
+    recorderManager.onStop((res) => {
+      if (that.recordState === false) {
+        wx.showToast({
+          title: '长按可录音',
+          icon: 'none',
+          duration: 1500
+        })
+      } else if (res.duration < 1000) {
+        wx.hideLoading();
+        wx.showToast({
+          title: '录音过短请重试',
+          icon: 'none',
+          duration: 1500
+        })
+        that.recordState = false;
+      } else {
+        that.setData({
+          [`${`addMemory.${'localRecordPath'}`}`]: res.tempFilePath,
+          [`${`addMemory.${'recordDuration'}`}`]: (res.duration / 1000).toFixed()
+        })
+        wx.hideLoading();
+        wx.showToast({
+          title: '录音成功',
+          icon: 'none',
+          duration: 1500
+        })
+        that.recordState = false;
+      }
+    })
+    recorderManager.onError(() => {
+      wx.showToast({
+        title: '在设置中开启录音权限即可使用该功能',
+        icon: 'none',
+        duration: 2000
+      })
+    })
+    recorderManager.start({
+      duration: 120000,
+      sampleRate: 44100,
+      numberOfChannels: 1,
+      encodeBitRate: 192000,
+      format: 'mp3'
+    })
+  },
+
+  /**
+   * 手指松开结束录音
+   */
+  onTouchEndRecord() {
+    let that = this;
+    const recorderManager = wx.getRecorderManager();
+    if (that.recordState === true) recorderManager.stop();
+  },
+
+  /**
+   * 手指触碰录音被打断
+   */
+  onTouchCancelRecord() {
+    let that = this;
+    that.recordState = false;
+    const recorderManager = wx.getRecorderManager();
+    recorderManager.stop();
+  },
+
+  /**
+   * 点击播放录音
+   */
+  onClickPlayRecord() {
+    let that = this;
+    that.audioManager = wx.createInnerAudioContext();
+    that.audioManager.src = that.data.addMemory.localRecordPath;
+    that.audioManager.onPlay(() => {
+      that.setData({
+        playRecordState: true
+      })
+    })
+    that.audioManager.onError(() => {
+      that.audioManager = '';
+      that.setData({
+        playRecordState: false
+      })
+    })
+    that.audioManager.onStop(() => {
+      that.audioManager = '';
+      that.setData({
+        playRecordState: false
+      })
+    })
+    that.audioManager.onEnded(() => {
+      that.audioManager = '';
+      that.setData({
+        playRecordState: false
+      })
+    })
+    that.audioManager.play();
+  },
+
+  /**
+   * 点击暂停录音
+   */
+  onClickPaushRecord() {
+    let that = this;
+    if (that.audioManager) that.audioManager.stop();
+  },
+
+  /**
+   * 点击删除录音
+   */
+  onClickDeleteRecord() {
+    let that = this;
+    wx.showModal({
+      title: '温馨提示',
+      content: '是否删除当前录音',
+      cancelText: '取消',
+      confirmText: '确定',
+      success(res) {
+        if (res.confirm) {
+          that.setData({
+            [`${`addMemory.${'localRecordPath'}`}`]: '',
+            [`${`addMemory.${'recordDuration'}`}`]: 0
+          })
+          wx.showToast({
+            title: '删除成功',
+            icon: 'none',
+            duration: 1500
+          })
+        }
+      }
+    })
   },
 
   /**
