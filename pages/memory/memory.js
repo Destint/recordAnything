@@ -718,17 +718,30 @@ Page({
   async getCurrentAddressInfo() {
     let that = this;
     let p = new Promise(function (resolve, reject) {
-      wx.startLocationUpdate().then(res => {
-          wx.onLocationChange(async (res) => {
-            await that.getCurrentLocation(res.latitude, res.longitude)
-            wx.offLocationChange();
-            wx.stopLocationUpdate();
+      try {
+        wx.startLocationUpdate({
+          success: () => {
+            wx.onLocationChange(async (res) => {
+              if (res.latitude && res.longitude) {
+                await that.getCurrentLocation(res.latitude, res.longitude);
+                wx.offLocationChange();
+                wx.stopLocationUpdate();
+              }
+              resolve(true);
+            })
+            wx.onLocationChangeError(res => {
+              wx.offLocationChange();
+              wx.stopLocationUpdate();
+              resolve(true);
+            })
+          },
+          fail: () => {
             resolve(true);
-          })
+          }
         })
-        .catch(err => {
-          resolve(false);
-        })
+      } catch {
+        resolve(true);
+      }
     })
 
     await p;

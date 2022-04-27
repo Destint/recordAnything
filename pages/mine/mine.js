@@ -22,7 +22,7 @@ Page({
     showSetNoticeView: false, // 显示设置公告页面
     setNoticeContent: '', // 设置公告的内容
     showAboutSelf: false, // 显示关于回忆录
-    aboutSelfContent: '这是一个可以《留住回忆》的小程序。\n可选的需要小程序授权的功能：\n1、开启手机和小程序的定位服务，可以在记录回忆时记下当前的位置与天气。\n2、记录回忆时可以从手机相册中选择想要的图片一同记录。\n如果您在使用小程序时遇到任何问题或者您对小程序有更好的建议或想法，欢迎通过《意见反馈》或《联系客服》功能来向开发者反馈。', // 关于回忆录的文本
+    aboutSelfContent: '这是一个可以《留住回忆》的小程序。\n可选的需要小程序授权的功能：\n1、开启定位后，可在记录回忆时记下位置与天气。\n2、开启录音后，可在记录回忆时记下声音。\n3、可从相册中选择想要的图片一同记录。\n如果您在使用小程序时遇到任何问题或者您对小程序有更好的建议或想法，欢迎通过《意见反馈》或《联系客服》功能来向开发者反馈。', // 关于回忆录的文本
     praiseState: wx.getStorageSync('praiseState') ? wx.getStorageSync('praiseState') : false, // 是否赞美小程序
     praiseSum: wx.getStorageSync('praiseSum') ? wx.getStorageSync('praiseSum') : 0, // 赞美小程序的总人数
     showOtherFunctionView: false, // 是否显示其他功能页面(今日宜忌)
