@@ -18,6 +18,13 @@ exports.main = async (event, context) => {
         fileList: memoryList[deleteMemoryIndex].cloudPicPathList
       })
     }
+    if (memoryList[deleteMemoryIndex].cloudRecordPath) {
+      let cloudRecordList = [];
+      cloudRecordList.push(memoryList[deleteMemoryIndex].cloudRecordPath);
+      await cloud.deleteFile({
+        fileList: cloudRecordList
+      })
+    }
     memoryList.splice(deleteMemoryIndex, 1);
     await db.collection('memory').where({
       _openid: wxContext.OPENID

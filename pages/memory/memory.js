@@ -117,6 +117,7 @@ Page({
         .then(async res => {
           if (res.result && res.result.result) {
             let partialMemoryList = await that.downloadCloudPicToLocal(res.result.partialMemoryList);
+            partialMemoryList = await that.downloadCloudRecordToLocal(partialMemoryList);
             if (currentIndex === 0) {
               that.setData({
                 memoryList: partialMemoryList,
@@ -215,60 +216,59 @@ Page({
    * @param {Array} memoryList 回忆列表
    * @return {Array} 处理后的回忆列表
    */
-  // async downloadCloudRecordToLocal(memoryList) {
-  //   let that = this;
-  //   let proArr = [];
-  //   if (memoryList.length === 0) return memoryList;
-  //   let recordPath = wx.getStorageSync('recordPath');
-  //   recordPath = recordPath ? JSON.parse(recordPath) : {};
-  //   for (let i = 0; i < memoryList.length; i++) {
-  //     let cloudRecordPath = memoryList[i].cloudRecordPath;
-  //     if (!cloudRecordPath) continue;
-  //     proArr.push(new Promise(async function (resolve, reject) {
-  //       let cloudPicName = cloudPicPathList[j].slice(cloudPicPathList[j].lastIndexOf("/") + 1);
-  //       if (picPath[cloudPicName]) {
-  //         await wx.getImageInfo({
-  //             src: picPath[cloudPicName]
-  //           })
-  //           .then(res => {
-  //             memoryList[i].localPicPathList[j] = picPath[cloudPicName];
-  //             resolve(true);
-  //           })
-  //           .catch(async (res) => {
-  //             await wx.cloud.downloadFile({
-  //                 fileID: cloudPicPathList[j]
-  //               })
-  //               .then(res => {
-  //                 memoryList[i].localPicPathList[j] = res.tempFilePath;
-  //                 picPath[cloudPicName] = res.tempFilePath;
-  //                 resolve(true);
-  //               })
-  //               .catch(res => {
-  //                 memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
-  //                 resolve(true);
-  //               })
-  //           })
-  //       } else {
-  //         await wx.cloud.downloadFile({
-  //             fileID: cloudPicPathList[j]
-  //           })
-  //           .then(res => {
-  //             memoryList[i].localPicPathList[j] = res.tempFilePath;
-  //             picPath[cloudPicName] = res.tempFilePath;
-  //             resolve(true);
-  //           })
-  //           .catch(res => {
-  //             memoryList[i].localPicPathList[j] = "../../images/img_miss.png";
-  //             resolve(true);
-  //           })
-  //       }
-  //     }))
-  //   }
-  //   await Promise.all(proArr).then(res => {
-  //     wx.setStorageSync('picPath', JSON.stringify(picPath));
-  //   }).catch(err => {})
-  //   return memoryList;
-  // },
+  async downloadCloudRecordToLocal(memoryList) {
+    let that = this;
+    let proArr = [];
+    if (memoryList.length === 0) return memoryList;
+    let recordPath = wx.getStorageSync('recordPath');
+    recordPath = recordPath ? JSON.parse(recordPath) : {};
+    const fs = wx.getFileSystemManager();
+    for (let i = 0; i < memoryList.length; i++) {
+      let cloudRecordPath = memoryList[i].cloudRecordPath;
+      if (!cloudRecordPath) continue;
+      proArr.push(new Promise(async function (resolve, reject) {
+        let cloudRecordName = cloudRecordPath.slice(cloudRecordPath.lastIndexOf("/") + 1);
+        if (recordPath[cloudRecordName]) {
+          // 判断文件/目录是否存在
+          try {
+            fs.accessSync(recordPath[cloudRecordName]);
+            memoryList[i].localRecordPath = recordPath[cloudRecordName];
+            resolve(true);
+          } catch (e) {
+            await wx.cloud.downloadFile({
+                fileID: cloudRecordPath
+              })
+              .then(res => {
+                memoryList[i].localRecordPath = res.tempFilePath;
+                recordPath[cloudRecordName] = res.tempFilePath;
+                resolve(true);
+              })
+              .catch(res => {
+                memoryList[i].localRecordPath = '';
+                resolve(true);
+              })
+          }
+        } else {
+          await wx.cloud.downloadFile({
+              fileID: cloudRecordPath
+            })
+            .then(res => {
+              memoryList[i].localRecordPath = res.tempFilePath;
+              recordPath[cloudRecordName] = res.tempFilePath;
+              resolve(true);
+            })
+            .catch(res => {
+              memoryList[i].localRecordPath = '';
+              resolve(true);
+            })
+        }
+      }))
+    }
+    await Promise.all(proArr).then(res => {
+      wx.setStorageSync('recordPath', JSON.stringify(recordPath));
+    }).catch(err => {})
+    return memoryList;
+  },
 
   /**
    * 获取公告
@@ -322,6 +322,7 @@ Page({
    */
   onClickMemoryMask(e) {
     let that = this;
+    if (that.audioManager) that.audioManager.stop();
     that.setData({
       showMemoryInfo: false,
       showPopup: false,
@@ -390,6 +391,12 @@ Page({
                   delete picPath[cloudPicName];
                 }
                 wx.setStorageSync('picPath', JSON.stringify(picPath));
+                let cloudRecordPath = deleteMemory.cloudRecordPath;
+                let recordPath = wx.getStorageSync('recordPath');
+                recordPath = recordPath ? JSON.parse(recordPath) : {};
+                let cloudRecordName = cloudRecordPath.slice(cloudRecordPath.lastIndexOf("/") + 1);
+                if (recordPath[cloudRecordName]) delete recordPath[cloudRecordName];
+                wx.setStorageSync('recordPath', JSON.stringify(recordPath));
                 memoryList.splice(deleteMemoryIndex, 1);
                 memorySum = memorySum - 1;
                 that.setData({
@@ -442,6 +449,7 @@ Page({
       })
       .then(res => {
         if (res.confirm) {
+          if (that.audioManager) that.audioManager.stop();
           that.setData({
             showPopup: false,
             showAddMemory: false,
@@ -562,6 +570,7 @@ Page({
       })
       .then(async (res) => {
         if (res.confirm) {
+          if (that.audioManager) that.audioManager.stop();
           wx.showLoading({
             title: '记录中...',
             mask: true
@@ -836,6 +845,7 @@ Page({
         .then(async (res) => {
           if (res.result && res.result.result) {
             let partialMemoryList = await that.downloadCloudPicToLocal(res.result.partialMemoryList);
+            partialMemoryList = await that.downloadCloudRecordToLocal(partialMemoryList);
             that.setData({
               memoryList: partialMemoryList,
               memorySum: res.result.memorySum
@@ -997,11 +1007,14 @@ Page({
 
   /**
    * 点击播放录音
+   * @param {object} e 当前点击的对象
    */
-  onClickPlayRecord() {
+  onClickPlayRecord(e) {
     let that = this;
+    let recordPath = e.currentTarget.dataset.data;
+    if (!recordPath) return;
     that.audioManager = wx.createInnerAudioContext();
-    that.audioManager.src = that.data.addMemory.localRecordPath;
+    that.audioManager.src = recordPath;
     that.audioManager.onPlay(() => {
       that.setData({
         playRecordState: true
@@ -1048,6 +1061,7 @@ Page({
       confirmText: '确定',
       success(res) {
         if (res.confirm) {
+          if (that.audioManager) that.audioManager.stop();
           that.setData({
             [`${`addMemory.${'localRecordPath'}`}`]: '',
             [`${`addMemory.${'recordDuration'}`}`]: 0

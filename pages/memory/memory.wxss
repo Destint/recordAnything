@@ -354,14 +354,14 @@ page {
   flex-shrink: 0;
 }
 
-.text-addMemory-record-tip {
+.text-record-tip {
   position: relative;
   color: #467B73;
   font-size: 30rpx;
   margin-left: 10rpx;
 }
 
-.img-addMemory-record-state {
+.img-record-state {
   position: relative;
   width: 32rpx;
   height: 32rpx;

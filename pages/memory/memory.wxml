@@ -65,9 +65,22 @@
           </block>
         </view>
       </block>
+      <block wx:if="{{memoryInfo.localRecordPath}}">
+        <!-- 回忆的录音栏 -->
+        <view class="view-memoryInfo-layout">
+          <image class="img-memoryInfo-Icon" src="../../images/img_record_icon.png"></image>
+          <text class="text-memoryInfo-content">录音时长 {{memoryInfo.recordDuration}}"</text>
+          <block wx:if="{{playRecordState}}">
+            <image class="img-record-state" src="../../images/img_paush_record.png" bindtap="onClickPaushRecord"></image>
+          </block>
+          <block wx:else>
+            <image class="img-record-state" src="../../images/img_play_record.png" bindtap="onClickPlayRecord" data-data="{{memoryInfo.localRecordPath}}"></image>
+          </block>
+        </view>
+      </block>
       <block wx:if="{{memoryInfo.content}}">
         <!-- 回忆的内容栏 -->
-        <view class="view-memoryInfo-layout" style="padding-bottom: 10rpx;border-bottom: 1rpx solid #467B73;">
+        <view class="view-memoryInfo-layout">
           <image class="img-memoryInfo-Icon" src="../../images/img_content.png"></image>
           <scroll-view scroll-y="true" class="scrollView-memoryContent">
             <text>{{memoryInfo.content}}</text>
@@ -123,17 +136,17 @@
       <view class="view-addMemory-record">
         <image class="img-addMemory-record-icon" src="../../images/img_record_icon.png"></image>
         <block wx:if="{{addMemory.localRecordPath}}">
-          <text class="text-addMemory-record-tip">录音时长 {{addMemory.recordDuration}}"</text>
+          <text class="text-record-tip">录音时长 {{addMemory.recordDuration}}"</text>
           <block wx:if="{{playRecordState}}">
-            <image class="img-addMemory-record-state" src="../../images/img_paush_record.png" bindtap="onClickPaushRecord"></image>
+            <image class="img-record-state" src="../../images/img_paush_record.png" bindtap="onClickPaushRecord"></image>
           </block>
           <block wx:else>
-            <image class="img-addMemory-record-state" src="../../images/img_play_record.png" bindtap="onClickPlayRecord"></image>
+            <image class="img-record-state" src="../../images/img_play_record.png" bindtap="onClickPlayRecord" data-data="{{addMemory.localRecordPath}}"></image>
           </block>
           <image class="img-addMemory-record-delete" src="../../images/img_delete_record.png" bindtap="onClickDeleteRecord"></image>
         </block>
         <block wx:else>
-          <text class="text-addMemory-record-tip">当前暂无录音</text>
+          <text class="text-record-tip">当前暂无录音</text>
         </block>
       </view>
       <!-- 添加的回忆内容栏 -->
