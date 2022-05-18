@@ -392,11 +392,13 @@ Page({
                 }
                 wx.setStorageSync('picPath', JSON.stringify(picPath));
                 let cloudRecordPath = deleteMemory.cloudRecordPath;
-                let recordPath = wx.getStorageSync('recordPath');
-                recordPath = recordPath ? JSON.parse(recordPath) : {};
-                let cloudRecordName = cloudRecordPath.slice(cloudRecordPath.lastIndexOf("/") + 1);
-                if (recordPath[cloudRecordName]) delete recordPath[cloudRecordName];
-                wx.setStorageSync('recordPath', JSON.stringify(recordPath));
+                if (cloudRecordPath) {
+                  let recordPath = wx.getStorageSync('recordPath');
+                  recordPath = recordPath ? JSON.parse(recordPath) : {};
+                  let cloudRecordName = cloudRecordPath.slice(cloudRecordPath.lastIndexOf("/") + 1);
+                  if (recordPath[cloudRecordName]) delete recordPath[cloudRecordName];
+                  wx.setStorageSync('recordPath', JSON.stringify(recordPath));
+                }
                 memoryList.splice(deleteMemoryIndex, 1);
                 memorySum = memorySum - 1;
                 that.setData({
