@@ -1022,7 +1022,6 @@ Page({
       randomChooseValue: Math.floor(Math.random() * 360),
       rotationAngle: 0,
     })
-    console.log('randomChooseValue', that.data.randomChooseValue);
     let rotateTimer = setInterval(function () {
       that.setData({
         rotationAngle: that.data.rotationAngle + 5
