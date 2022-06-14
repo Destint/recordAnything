@@ -28,6 +28,13 @@ Page({
     showOtherFunctionView: false, // 是否显示其他功能页面(今日宜忌)
     otherFunctionTitle: '', // 其他功能页标题
     otherFunctionContent: '', // 其他功能页内容
+    showRandomChooseView: false, // 是否显示随机选择页面
+    setRandomChooseContent: '', // 设置随机选择的内容
+    randomChooseList: [], // 随机选择的内容列表
+    randomChooseContent: '', // 随机选择的内容
+    showRotaryTableView: false, // 是否显示转盘页面
+    rotationAngle: 0, // 转盘指针旋转角度
+    randomChooseValue: 0, // 随机旋转的值
   },
 
   uploadFeedbackState: false, // 上传意见反馈的状态(防止两次点击上传)
@@ -903,6 +910,175 @@ Page({
       otherFunctionTitle: '',
       otherFunctionContent: ''
     })
+  },
+
+  /**
+   * 点击随机选择
+   */
+  onClickRandomChoose() {
+    let that = this;
+    that.setData({
+      showRandomChooseView: true,
+      showRotaryTableView: false,
+      showPopup: true,
+      setRandomChooseContent: '',
+      randomChooseList: [],
+      randomChooseContent: '',
+      rotationAngle: 0,
+      randomChooseValue: 0
+    })
+  },
+
+  /**
+   * 设置随机选择的内容
+   * @param {Object} e 当前点击的对象
+   */
+  setRandomChooseContent(e) {
+    let that = this;
+    that.setData({
+      setRandomChooseContent: e.detail.value
+    })
+  },
+
+  /**
+   * 点击添加随机选择内容
+   */
+  onClickAddRandomChoose() {
+    let that = this;
+    if (that.data.randomChooseList.length >= 4) {
+      wx.showToast({
+        title: '选择已达上限',
+        icon: 'none'
+      })
+      return;
+    }
+    if (that.data.setRandomChooseContent !== '') {
+      let randomChooseList = that.data.randomChooseList;
+      let randomChooseContent = that.data.randomChooseContent;
+      randomChooseList.push(that.data.setRandomChooseContent);
+      randomChooseContent += that.data.setRandomChooseContent + '  ';
+      that.setData({
+        randomChooseList: randomChooseList,
+        setRandomChooseContent: '',
+        randomChooseContent: randomChooseContent
+      })
+    } else {
+      wx.showToast({
+        title: '未填写选择内容',
+        icon: 'none'
+      })
+    }
+  },
+
+  /**
+   * 点击取消选择
+   */
+  onClickCancelChoose() {
+    let that = this;
+    wx.showModal({
+        title: '温馨提示',
+        content: '退出随机选择吗',
+        cancelText: '取消',
+        confirmText: '确定'
+      })
+      .then(res => {
+        if (res.confirm) {
+          that.setData({
+            showRandomChooseView: false,
+            showPopup: false,
+            setRandomChooseContent: '',
+            randomChooseList: [],
+            randomChooseContent: ''
+          })
+        }
+      })
+  },
+
+  /**
+   * 点击前往选择
+   */
+  onClickGoChoose() {
+    let that = this;
+    if (that.data.randomChooseList.length < 4) {
+      wx.showToast({
+        title: '选择内容不足',
+        icon: 'none'
+      })
+    } else {
+      that.setData({
+        showRandomChooseView: false,
+        showRotaryTableView: true,
+      })
+    }
+  },
+
+  /**
+   * 点击转盘指针开始旋转
+   */
+  onClickRotaryPointer() {
+    let that = this;
+    let rotateNum = 0; // 旋转圈数
+    that.setData({
+      randomChooseValue: Math.floor(Math.random() * 360),
+      rotationAngle: 0,
+    })
+    console.log('randomChooseValue', that.data.randomChooseValue);
+    let rotateTimer = setInterval(function () {
+      that.setData({
+        rotationAngle: that.data.rotationAngle + 5
+      })
+      if (that.data.rotationAngle >= 360) {
+        that.data.rotationAngle = 0;
+        rotateNum = rotateNum + 1;
+      }
+      if (rotateNum === 3) {
+        that.showRandomChooseContent();
+        clearInterval(rotateTimer);
+      }
+    }, 5);
+  },
+
+  /**
+   * 显示随机选择的内容
+   */
+  showRandomChooseContent() {
+    let that = this;
+    let randomChooseValue = that.data.randomChooseValue;
+    let randomChooseList = that.data.randomChooseList;
+    let result = '';
+    if (randomChooseValue % 90 === 0) randomChooseValue++;
+    if (randomChooseValue > 0 && randomChooseValue < 90) result = randomChooseList[1];
+    else if (randomChooseValue > 90 && randomChooseValue < 180) result = randomChooseList[2];
+    else if (randomChooseValue > 180 && randomChooseValue < 270) result = randomChooseList[3];
+    else if (randomChooseValue > 270 && randomChooseValue < 360) result = randomChooseList[0];
+    let showChooseTimer = setInterval(function () {
+      that.setData({
+        rotationAngle: that.data.rotationAngle + 2
+      })
+      if (that.data.rotationAngle >= that.data.randomChooseValue) {
+        wx.showModal({
+            title: '恭喜你',
+            content: result,
+            showCancel: false,
+            confirmText: '确定'
+          })
+          .then(res => {
+            if (res.confirm) {
+              that.setData({
+                showRandomChooseView: false,
+                showRotaryTableView: false,
+                showPopup: false,
+                setRandomChooseContent: '',
+                randomChooseList: [],
+                randomChooseContent: '',
+                rotationAngle: 0,
+                randomChooseValue: 0
+              })
+            }
+          })
+        clearInterval(showChooseTimer);
+      }
+    }, 10);
   },
 
   /**

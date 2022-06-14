@@ -68,6 +68,11 @@
       <image class="img-function" src="../../images/img_suit_and_avoid.png"></image>
       <text class="text-function">今日宜忌</text>
     </view>
+    <!-- 随机选择 -->
+    <view class="view-function" bindtap="onClickRandomChoose" style="border-top: 1rpx solid #E4E4E4;">
+      <image class="img-function" src="../../images/img_random_choose.png"></image>
+      <text class="text-function">随机选择</text>
+    </view>
     <!-- 随机笑话 -->
     <view class="view-function" bindtap="onClickRandomJoke" style="border-top: 1rpx solid #E4E4E4;">
       <image class="img-function" src="../../images/img_joke.png"></image>
@@ -150,6 +155,57 @@
     <view class="view-otherFunction-box">
       <text class="text-otherFunction-viewName">{{otherFunctionTitle}}</text>
       <text class="text-otherFunction-content" user-select>{{otherFunctionContent}}</text>
+    </view>
+  </block>
+  <block wx:if="{{showRandomChooseView}}">
+    <!-- 显示随机选择的蒙版 -->
+    <view class="view-mask-box"></view>
+    <view class="view-randomChoose-box">
+      <text class="text-viewName">随机选择</text>
+      <view class="view-set-content">
+        <input class="input-set-content" maxlength="6" placeholder="请输入4种选择..." placeholder-style="color: rgba(70,123,115,0.5);" bindinput="setRandomChooseContent" value="{{setRandomChooseContent}}" />
+        <image class="img-add-choose" src="../../images/img_add_choose.png" bindtap="onClickAddRandomChoose"></image>
+      </view>
+      <view class="view-chooseList-box">
+        <text class="text-chooseList">当前选择内容</text>
+        <text class="text-chooseList">{{randomChooseContent}} </text>
+      </view>
+      <image class="img-randomChoose-back" src="../../images/img_back.png" bindtap="onClickCancelChoose"></image>
+      <image class="img-randomChoose-go" src="../../images/img_go.png" bindtap="onClickGoChoose"></image>
+    </view>
+  </block>
+  <block wx:if="{{showRotaryTableView}}">
+    <!-- 显示随机选择的蒙版 -->
+    <view class="view-mask-box"></view>
+    <view class="view-rotaryTable-box">
+      <text class="text-viewName">随机选择</text>
+      <view class="view-rotaryTable-area">
+        <block wx:if="{{randomChooseList.length === 2}}">
+          <view class="view-rotaryTable-line" style="transform: rotateZ(90deg);"></view>
+          <view class="view-rotaryTable-content" style="top: 50%;left: 25%;transform: translateY(-50%) translateX(-50%);">{{randomChooseList[0]}}</view>
+          <view class="view-rotaryTable-content" style="top: 50%;right: 25%;transform: translateY(-50%) translateX(50%);">{{randomChooseList[1]}}</view>
+        </block>
+        <block wx:elif="{{randomChooseList.length === 4}}">
+          <view class="view-rotaryTable-line" style="transform: rotateZ(90deg);"></view>
+          <view class="view-rotaryTable-line" style="transform: rotateZ(0deg);"></view>
+          <view class="view-rotaryTable-content" style="top: 25%;left: 25%;transform: translateY(-50%) translateX(-50%);">{{randomChooseList[0]}}</view>
+          <view class="view-rotaryTable-content" style="top: 25%;right: 25%;transform: translateY(-50%) translateX(50%);">{{randomChooseList[1]}}</view>
+          <view class="view-rotaryTable-content" style="top: 75%;left: 25%;transform: translateY(-50%) translateX(-50%);">{{randomChooseList[2]}}</view>
+          <view class="view-rotaryTable-content" style="top: 75%;right: 25%;transform: translateY(-50%) translateX(50%);">{{randomChooseList[3]}}</view>
+        </block>
+        <block wx:elif="{{randomChooseList.length === 6}}">
+          <view class="view-rotaryTable-line" style="transform: rotateZ(0deg);"></view>
+          <view class="view-rotaryTable-line" style="transform: rotateZ(60deg);"></view>
+          <view class="view-rotaryTable-line" style="transform: rotateZ(120deg);"></view>
+          <view class="view-rotaryTable-content" style="top: 32%;left: 20%;transform: translateY(-50%) translateX(-50%);">{{randomChooseList[0]}}</view>
+          <view class="view-rotaryTable-content" style="top: 18%;left: 50%;transform: translateY(-50%) translateX(-50%);">{{randomChooseList[1]}}</view>
+          <view class="view-rotaryTable-content" style="top: 32%;right: 20%;transform: translateY(-50%) translateX(50%);">{{randomChooseList[2]}}</view>
+          <view class="view-rotaryTable-content" style="bottom: 32%;right: 20%;transform: translateY(50%) translateX(50%);">{{randomChooseList[3]}}</view>
+          <view class="view-rotaryTable-content" style="bottom: 18%;left: 50%;transform: translateY(50%) translateX(-50%);">{{randomChooseList[4]}}</view>
+          <view class="view-rotaryTable-content" style="bottom: 32%;left: 20%;transform: translateY(50%) translateX(-50%);">{{randomChooseList[5]}}</view>
+        </block>
+        <span class="span-rotaryTable-pointer" style="transform:rotate({{rotationAngle}}deg);" bindtap="onClickRotaryPointer"></span>
+      </view>
     </view>
   </block>
 </view>
